@@ -22,5 +22,5 @@ def walk_members(package, predicate, callback):
             continue
 
         m = import_module(name)
-        handlers = getmembers(m, predicate)
-        map(callback, (h for _, h in handlers))
+        members = getmembers(m, predicate)
+        map(callback, (m for _, m in members))

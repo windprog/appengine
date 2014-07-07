@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import engine
-import engine.config
+from engine import Server
 
-engine.Server().run()
+Server().run()
