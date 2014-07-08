@@ -13,6 +13,12 @@ from debug import DebugApplication
 #      def run(self): pass
 #
 
+#
+# TODO:
+# ~~~~~~~~~
+# RESTful API 通过工具函数包装。
+#
+
 
 class Server(object):
 
@@ -43,8 +49,10 @@ class Server(object):
         # 处理结果。
         ret = handler(**kwargs)
 
-        if ret is None and "response" in handler_args:
+        if "response" in handler_args:
             return kwargs["response"](environ, start_response)
+        elif not (set(("start_response", "response")) & set(handler_args)):
+            return Response(ret)(environ, start_response)
         elif hasattr(ret, "__iter__"):
             return ret
 

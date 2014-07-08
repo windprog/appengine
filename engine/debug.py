@@ -1,12 +1,15 @@
 # coding=utf-8
 
-from time import time
+from time import sleep
 from wsgiref.simple_server import make_server
+from signal import signal, SIGINT
+from os import walk
+from os.path import join, getmtime
+from threading import Thread, RLock
 
-from config import HOST, PORT
-
-# TODO:
-# 1. 使用 Thread 定期扫描文件修改时间，Auto-Reload。
+from router import Router
+from config import HOST, PORT, Action
+from util import prof_call, pdb_pm, app_path
 
 
 class DebugApplication(object):
@@ -15,31 +18,72 @@ class DebugApplication(object):
 
     def __init__(self, server):
         self._server = server
+        self._lock = RLock()
+        self._reload = False
+
+        Reloader(self)
+        signal(SIGINT, lambda *args: exit(0))
+
+    def reload(self):
+        # 设置重新载入标记。
+        with self._lock:
+            self._reload = True
 
     def _execute(self, environ, start_response):
         try:
-            start = time()
+            # 刷新 Router Handler 配置。
+            with self._lock:
+                if self._reload:
+                    self._reload = False
+                    Router().reset().load()
 
+            # 路由匹配。
             handler, kwargs = self._server.match(environ)
-            ret = self._server.execute(environ, start_response, handler, kwargs)
+            print "\n=== {0}.{1} ===\n".format(handler.__module__, handler.__name__)
 
-            # 输出执行时间，以便决定是否使用异步调用。
-            end = time() - start
-            print "[{0}.{1}] {2}s".format(handler.__module__, handler.__name__, end)
-
-            return ret
+            # 使用 Profile 输出性能分析数据。
+            return prof_call(self._server.execute, environ, start_response, handler, kwargs)
         except:
-            # 使用 pdb 进入异常现场。
-            try:
-                pdb = __import__("ipdb")
-            except:
-                import pdb
-
-            import sys
-            import traceback
-            _, _, tb = sys.exc_info()
-            traceback.print_exc()
-            pdb.post_mortem(tb)
+            # 进入异常现场。
+            pdb_pm()
 
     def run(self):
         make_server(HOST, PORT, self._execute).serve_forever()
+
+
+class Reloader(object):
+    # 使用多线程监控 action 目录变化。
+    # 通知 DebugApplication 重新载入 Handlers。
+
+    def __init__(self, server):
+        self._server = server
+        self._path = app_path(Action.__name__)
+        self._files = self._scan()
+
+        t = Thread(target=self._watch)
+        t.daemon = True
+        t.start()
+
+    def _scan(self):
+        # 扫描全部文件，返回 {filename: mtime}。
+        ret = {}
+        for path, _, files in walk(self._path):
+            for f in files:
+                if not f.endswith(".py"):
+                    continue
+
+                filename = join(path, f)
+                ret[filename] = getmtime(filename)
+
+        return ret
+
+    def _watch(self):
+        # 多线程循环扫描比较。
+        while True:
+            sleep(1)
+            new = self._scan()
+
+            # 通过 key 对称差集来判断是否有文件新增或删除，value 则用于判断是否有修改时间变化。
+            if new.viewkeys() ^ self._files.viewkeys() or set(new.values()) ^ set(self._files.values()):
+                self._files = new
+                self._server.reload()

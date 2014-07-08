@@ -9,6 +9,7 @@ from config import Selector, Action
 #  class Selector:
 #      def __init__(self): pass
 #      def add(self, url, handler): pass
+#      def reset(self): pass
 #      def match(self, environ): pass  --> (handler, kwargs)
 #
 
@@ -18,13 +19,18 @@ class Router(object):
 
     def __init__(self):
         self._selector = Selector()
-        self._load_handlers()
+        self.load()
 
-    def _load_handlers(self):
+    def load(self):
         # 通过检查 __urls__，载入所有 handler。
         walk_members(Action,
                      lambda m: hasattr(m, "__urls__"),
                      lambda h: map(lambda (u, h): self._selector.add(u, h), ((u, h) for u in h.__urls__)))
+
+    def reset(self):
+        # 重置(清空) Handlers 配置。
+        self._selector.reset()
+        return self
 
     def match(self, environ):
         # 返回 handler 和 kwargs。
