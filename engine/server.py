@@ -30,7 +30,7 @@ class Server(object):
 
     def match(self, environ):
         # 匹配 URL 路由，返回 (handler, kwargs)。
-        return Router().match(environ)
+        return Router.instance.match(environ)
 
     def execute(self, environ, start_response, handler, kwargs):
         # 根据 Handler 参数列表动态构建实参对象。
@@ -57,9 +57,3 @@ class Server(object):
             return ret
 
         return (ret,)
-
-
-def async(func):
-    # 异步装饰器
-    func.__async__ = True
-    return func

@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from util import singleton, walk_members
+from util import walk_members
 from config import Selector, Action
 
 #
@@ -14,18 +14,40 @@ from config import Selector, Action
 #
 
 
-@singleton
 class Router(object):
 
+    # ---- 描述符: 延迟实例化。------------------------ #
+
+    class InstanceDescriptor(object):
+
+        def __get__(self, instance, owner):
+            v = getattr(owner, "__instance__", None)
+            if not v:
+                v = owner()  # 构造参数!
+                owner.__instance__ = v
+
+            return v
+
+    # ----------------------------------------------- #
+
     def __init__(self):
+        self._handlers = {}
         self._selector = Selector()
         self.load()
 
+    handlers = property(lambda self: self._handlers)
+    instance = InstanceDescriptor()
+
     def load(self):
         # 通过检查 __urls__，载入所有 handler。
+
+        def add(url, handler):
+            self._selector.add(url, handler)
+            self._handlers[url] = handler
+
         walk_members(Action,
                      lambda m: hasattr(m, "__urls__"),
-                     lambda h: map(lambda (u, h): self._selector.add(u, h), ((u, h) for u in h.__urls__)))
+                     lambda h: map(lambda (k, v): add(k, v), ((u, h) for u in h.__urls__)))
 
     def reset(self):
         # 重置(清空) Handlers 配置。
@@ -35,15 +57,3 @@ class Router(object):
     def match(self, environ):
         # 返回 handler 和 kwargs。
         return self._selector.match(environ)
-
-
-def url(*paths):
-    # 添加 __urls__ 标记。
-    def set(cls):
-        if not hasattr(cls, "__urls__"):
-            cls.__urls__ = []
-
-        cls.__urls__.extend(paths)
-        return cls
-
-    return set

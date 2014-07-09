@@ -35,7 +35,7 @@ class DebugApplication(object):
             with self._lock:
                 if self._reload:
                     self._reload = False
-                    Router().reset().load()
+                    Router.instance.reset().load()
 
             # 路由匹配。
             handler, kwargs = self._server.match(environ)
@@ -49,6 +49,9 @@ class DebugApplication(object):
 
     def run(self):
         make_server(HOST, PORT, self._execute).serve_forever()
+
+
+# ------------------------------------------------------------------------ #
 
 
 class Reloader(object):

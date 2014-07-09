@@ -12,18 +12,6 @@ def app_path(sub):
     return join(dirname(abspath(argv[0])), sub)
 
 
-def singleton(cls):
-    # 单例模式。
-    def wrap(*args, **kwargs):
-        o = getattr(cls, "__instance__", None)
-        if not o:
-            o = cls(*args, **kwargs)
-            cls.__instance__ = o
-
-        return o
-    return wrap
-
-
 def walk_members(package, predicate, callback):
     # 遍历包中所有模块成员。
     for _, name, ispkg in walk_packages(package.__path__, package.__name__ + "."):

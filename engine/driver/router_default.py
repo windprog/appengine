@@ -8,7 +8,6 @@ from werkzeug.routing import Map, Rule
 class Selector(object):
 
     def __init__(self):
-        super(Selector, self).__init__()
         self.reset()
 
     def add(self, url, handler):

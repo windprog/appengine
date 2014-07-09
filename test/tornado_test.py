@@ -7,22 +7,26 @@ import tornado.web
 import tornado.httpserver
 import tornado.gen
 
-# import futures
-# pool = futures.ThreadPoolExecutor(8)
+import futures
+pool = futures.ThreadPoolExecutor(8)
 
 
-def test():
+def block_test():
     time.sleep(0.01)
     return "Hello, World!\n"
 
 
-# class HelloAsyncHandler(tornado.web.RequestHandler):
+def test():
+    return "Hello, World!\n"
 
-#     @tornado.web.asynchronous
-#     @tornado.gen.coroutine
-#     def get(self):
-#         s = yield pool.submit(test)
-#         self.write(s)
+
+class HelloAsyncHandler(tornado.web.RequestHandler):
+
+    @tornado.web.asynchronous
+    @tornado.gen.coroutine
+    def get(self):
+        s = yield pool.submit(block_test)
+        self.write(s)
 
 
 class HelloHandler(tornado.web.RequestHandler):
@@ -32,7 +36,7 @@ class HelloHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application([
-    # (r"/", HelloAsyncHandler),
+    (r"/async", HelloAsyncHandler),
     (r"/", HelloHandler),
 ])
 

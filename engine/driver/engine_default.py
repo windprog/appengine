@@ -1,35 +1,59 @@
 # coding=utf-8
 
-from gevent.event import Event
+from os import wait
+from signal import signal, SIGINT, SIG_IGN
+from socket import AF_INET, SOL_SOCKET, SO_REUSEADDR
+
+from gevent.socket import socket
+from gevent.pywsgi import WSGIServer
+from gevent.os import fork
 from gevent.threadpool import ThreadPool
-from gunicorn.app.base import BaseApplication
+from gevent.event import Event
 
 from engine.config import HOST, PORT, WORKERS, CPUS
 
 
-class Application(BaseApplication):
+class Application(object):
 
     def __init__(self, server):
         self._server = server
         self._pool = ThreadPool(CPUS * 4)
-        super(Application, self).__init__()
 
-    def load_config(self):
-        options = {
-            "bind": "{0}:{1}".format(HOST, PORT),
-            "workers": WORKERS or CPUS * 2 + 1,
-            "worker_class": "gevent",
-        }
+    def run(self):
+        # 监听
+        sock = socket(family=AF_INET)
+        sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        sock.bind((HOST, PORT))
+        sock.listen(1024)
+        sock.setblocking(0)
 
-        map(lambda (k, v): self.cfg.set(k, v), options.items())
+        # 创建子进程
+        childs = []
+        for i in range(WORKERS or CPUS * 2 + 1):
+            pid = fork()
 
-    def load(self):
-        return self._execute
+            if pid > 0:
+                childs.append(pid)
+            else:
+                self._child(sock)
+
+        # 父进程，等待所有子进程退出。
+        self._parent(childs)
+
+    def _parent(self, childs):
+        signal(SIGINT, SIG_IGN)
+
+        while childs:
+            pid, _ = wait()
+            childs.remove(pid)
+
+    def _child(self, sock):
+        signal(SIGINT, lambda *args: exit(0))
+
+        server = WSGIServer(sock, self._execute, spawn="default", log=None)
+        server.serve_forever()
 
     def _execute(self, environ, start_response):
-        # 调用 Server.match 匹配合适的 Handler。
-        # 检查异步标记来决定执行方式，具体调用由 Server.execute 完成。
-
         handler, kwargs = self._server.match(environ)
         args = (environ, start_response, handler, kwargs)
 

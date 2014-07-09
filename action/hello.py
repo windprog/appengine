@@ -5,13 +5,16 @@ from engine import url, async
 
 
 def test():
+    return "Hello, World!\n"
+
+
+def block_test():
     time.sleep(0.01)
     return "Hello, World!\n"
 
 
-@async
 @url("/")
-def handler(environ, start_response):
+def hello(environ, start_response):
     s = test()
 
     start_response("200 OK", [
@@ -22,8 +25,14 @@ def handler(environ, start_response):
     return s
 
 
-@url("/uid/<uid>")
-def uid(request, response, uid):
-    print request
-    response.set_cookie("a", "b")
-    response.set_data(uid)
+@async
+@url("/async")
+def hello_async(environ, start_response):
+    s = block_test()
+
+    start_response("200 OK", [
+        ("Content-Type", "text/plain"),
+        ("Content-Length", str(len(s)))
+    ])
+
+    return s

@@ -10,7 +10,7 @@
 # 调试开关
 # 调试状态使用 DebugApplication，可输出 profile 信息，
 # 并在出错时，使用 pdb 进入异常现场。便于调试!
-DEBUG = True
+DEBUG = False
 
 # 服务器监听地址。
 HOST = "0.0.0.0"
@@ -36,6 +36,7 @@ PARSER = "default"
 
 from multiprocessing import cpu_count
 from importlib import import_module
+from string import uppercase
 
 # CPU Core 数量。
 CPUS = cpu_count()
@@ -51,3 +52,6 @@ Response = import_module("engine.driver.parser_" + PARSER).Response
 
 # 合并用户配置
 globals().update(vars(import_module("config")))
+
+# 全部大写配置项
+options = {k: v for k, v in globals().iteritems() if set(k) < set(uppercase + "_")}
