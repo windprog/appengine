@@ -1,9 +1,10 @@
 # coding=utf-8
 
 from os import wait
-from signal import signal, SIGINT, SIG_IGN
+from signal import SIGINT, SIG_IGN
 from socket import AF_INET, SOL_SOCKET, SO_REUSEADDR
 
+from gevent import signal, wait as gwait
 from gevent.socket import socket
 from gevent.pywsgi import WSGIServer
 from gevent.os import fork
@@ -18,6 +19,8 @@ class Application(object):
     def __init__(self, server):
         self._server = server
         self._pool = ThreadPool(CPUS * 4)
+        self._childs = []
+        self._wsgi_server = None
 
     def run(self):
         # 监听
@@ -28,32 +31,40 @@ class Application(object):
         sock.setblocking(0)
 
         # 创建子进程
-        childs = []
         for i in range(WORKERS or CPUS * 2 + 1):
             pid = fork()
 
             if pid > 0:
-                childs.append(pid)
+                self._childs.append(pid)
             else:
-                self._child(sock)
+                # 子进程。
+                self._child_execute(sock)
+                exit(0)
 
-        # 父进程，等待所有子进程退出。
-        self._parent(childs)
+        # 父进程。
+        self._parent_execute()
 
-    def _parent(self, childs):
+    def _parent_execute(self):
         signal(SIGINT, SIG_IGN)
 
-        while childs:
+        # 等待所有子进程退出。
+        while self._childs:
             pid, _ = wait()
-            childs.remove(pid)
+            self._childs.remove(pid)
 
-    def _child(self, sock):
-        signal(SIGINT, lambda *args: exit(0))
+    def _child_execute(self, sock):
+        # 信号处理:
+        # * INT: 停止服务，结束子进程。
+        signal(SIGINT, lambda *args: self._wsgi_server and self._wsgi_server.stop())
 
-        server = WSGIServer(sock, self._execute, spawn="default", log=None)
-        server.serve_forever()
+        # 启动 WSGI-Server。
+        self._wsgi_server = WSGIServer(sock, self._handler, spawn="default", log=None)
+        self._wsgi_server.serve_forever()
 
-    def _execute(self, environ, start_response):
+        # 等待所有处理结束，超时 10 秒。
+        gwait(timeout=10)
+
+    def _handler(self, environ, start_response):
         handler, kwargs = self._server.match(environ)
         args = (environ, start_response, handler, kwargs)
 
