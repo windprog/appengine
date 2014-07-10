@@ -3,16 +3,6 @@
 from util import walk_members
 from config import Selector, Action
 
-#
-#  Selector Driver Interface
-#  -----------------------------------------------------------
-#  class Selector:
-#      def __init__(self): pass
-#      def add(self, url, handler): pass
-#      def reset(self): pass
-#      def match(self, environ): pass  --> (handler, kwargs)
-#
-
 
 class Router(object):
 

@@ -6,14 +6,6 @@ from parser import Request, Response
 from debug import DebugApplication
 
 #
-#  Application Driver Interface
-#  -----------------------------------------
-#  class Applicaiton:
-#      def __init__(self, server): pass
-#      def run(self): pass
-#
-
-#
 # TODO:
 # ~~~~~~~~~
 # RESTful API 通过工具函数包装。

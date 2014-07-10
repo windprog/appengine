@@ -1,11 +1,10 @@
 # coding=utf-8
 
-# 默认路由选择器
-
 from werkzeug.routing import Map, Rule
+from engine.interface import BaseSelector
 
 
-class Selector(object):
+class Selector(BaseSelector):
 
     def __init__(self):
         self.reset()

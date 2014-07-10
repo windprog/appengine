@@ -12,9 +12,10 @@ from gevent.threadpool import ThreadPool
 from gevent.event import Event
 
 from engine.config import HOST, PORT, WORKERS, CPUS
+from engine.interface import BaseApplication
 
 
-class Application(object):
+class Application(BaseApplication):
 
     def __init__(self, server):
         self._server = server
