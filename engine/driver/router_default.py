@@ -6,6 +6,11 @@ from engine.interface import BaseSelector
 
 class Selector(BaseSelector):
 
+    #
+    # 基于 werkzeug (flask 项目) 实现。
+    # 未来会被自主实现替换。
+    #
+
     def __init__(self):
         self.reset()
 

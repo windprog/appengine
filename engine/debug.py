@@ -14,8 +14,11 @@ from util import prof_call, pdb_pm, app_path
 
 
 class DebugApplication(BaseApplication):
+
+    #
     # 调试服务器，适用于逻辑开发、调试。
     # 未做任何优化，勿用于性能测试。
+    #
 
     def __init__(self, server):
         self._server = server
@@ -56,8 +59,11 @@ class DebugApplication(BaseApplication):
 
 
 class Reloader(object):
+
+    #
     # 使用多线程监控 action 目录变化。
     # 通知 DebugApplication 重新载入 Handlers。
+    #
 
     def __init__(self, server):
         self._server = server

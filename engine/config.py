@@ -30,6 +30,11 @@ SELECTOR = "default"
 # Request、Response 解析器驱动名称。
 PARSER = "default"
 
+# HTTPS
+HTTPS = False
+HTTPS_KEY = "server.key"
+HTTPS_CERT = "server.crt"
+
 
 # --- 以下内容请勿修改 --------------------------------------------------------- #
 

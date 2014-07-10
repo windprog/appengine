@@ -5,11 +5,15 @@ from __future__ import print_function
 from server import Server
 from decorator import async, url
 
+
 __all__ = ["Server", "async", "url", "Welcome"]
 
 
 def Welcome():
+
+    #
     # 输出欢迎信息。
+    #
 
     from config import options
     from router import Router
