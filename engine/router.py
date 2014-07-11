@@ -2,6 +2,7 @@
 
 from util import walk_members
 from config import Selector, Action
+from decorator import TAG_URLS
 
 
 class Router(object):
@@ -21,7 +22,7 @@ class Router(object):
     # ----------------------------------------------- #
 
     def __init__(self):
-        self._handlers = {}
+        self._handlers = {}  # {url:(handler, methods)}
         self._selector = Selector()
         self.load()
 
@@ -29,15 +30,14 @@ class Router(object):
     instance = InstanceDescriptor()
 
     def load(self):
-        # 通过检查 __urls__，载入所有 handler。
+        # 通过检查 urls 标记，载入所有 handler。
 
-        def add(url, handler):
-            self._selector.add(url, handler)
-            self._handlers[url] = handler
+        def add(handler):
+            for url, methods in getattr(handler, TAG_URLS).iteritems():
+                self._selector.add(url, methods, handler)
+                self._handlers[url] = (handler, methods)
 
-        walk_members(Action,
-                     lambda m: hasattr(m, "__urls__"),
-                     lambda h: map(lambda (k, v): add(k, v), ((u, h) for u in h.__urls__)))
+        walk_members(Action, lambda m: hasattr(m, TAG_URLS), add)
 
     def reset(self):
         # 重置(清空) Handlers 配置。

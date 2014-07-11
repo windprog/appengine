@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 #
 
 
-class BaseApplication(object):
+class BaseEngine(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -27,7 +27,7 @@ class BaseSelector(object):
         pass
 
     @abstractmethod
-    def add(self, url, handler):
+    def add(self, url, methods, handler):
         pass
 
     @abstractmethod

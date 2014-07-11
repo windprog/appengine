@@ -1,14 +1,14 @@
 # coding=utf-8
 
-from config import DEBUG, Application
+from config import DEBUG, Engine
 from router import Router
 from parser import Request, Response
-from debug import DebugApplication
+from debug import DebugEngine
+from helper import not_found
 
 #
 # TODO:
 # ~~~~~~~~~
-# RESTful API 通过工具函数包装。
 #
 
 
@@ -16,13 +16,14 @@ class Server(object):
 
     def run(self):
         if DEBUG:
-            DebugApplication(self).run()
+            DebugEngine(self).run()
         else:
-            Application(self).run()
+            Engine(self).run()
 
     def match(self, environ):
         # 匹配 URL 路由，返回 (handler, kwargs)。
-        return Router.instance.match(environ)
+        handler, kwargs = Router.instance.match(environ)
+        return handler and (handler, kwargs) or (not_found, {})
 
     def execute(self, environ, start_response, handler, kwargs):
         # 根据 Handler 参数列表动态构建实参对象。
@@ -43,7 +44,7 @@ class Server(object):
 
         if "response" in handler_args:
             return kwargs["response"](environ, start_response)
-        elif not (set(("start_response", "response")) & set(handler_args)):
+        elif not "start_response" in handler_args:
             return Response(ret)(environ, start_response)
         elif hasattr(ret, "__iter__"):
             return ret

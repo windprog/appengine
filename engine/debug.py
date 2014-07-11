@@ -9,11 +9,11 @@ from threading import Thread, RLock
 
 from router import Router
 from config import HOST, PORT, Action
-from interface import BaseApplication
+from interface import BaseEngine
 from util import prof_call, pdb_pm, app_path
 
 
-class DebugApplication(BaseApplication):
+class DebugEngine(BaseEngine):
 
     #
     # 调试服务器，适用于逻辑开发、调试。

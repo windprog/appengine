@@ -10,7 +10,7 @@
 # 调试开关
 # 调试状态使用 DebugApplication，可输出 profile 信息，
 # 并在出错时，使用 pdb 进入异常现场。便于调试!
-DEBUG = False
+DEBUG = True
 
 # 服务器监听地址。
 HOST = "0.0.0.0"
@@ -50,7 +50,7 @@ CPUS = cpu_count()
 Action = import_module("action")
 
 # 各驱动实现对象。
-Application = import_module("engine.driver.engine_" + ENGINE).Application
+Engine = import_module("engine.driver.engine_" + ENGINE).Engine
 Selector = import_module("engine.driver.router_" + SELECTOR).Selector
 Request = import_module("engine.driver.parser_" + PARSER).Request
 Response = import_module("engine.driver.parser_" + PARSER).Response

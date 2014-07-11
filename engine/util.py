@@ -6,6 +6,9 @@ from importlib import import_module
 from pkgutil import walk_packages
 from inspect import getmembers
 from traceback import print_exc
+from cProfile import Profile
+from pstats import Stats
+
 
 try:
     pdb = __import__("ipdb")
@@ -41,10 +44,37 @@ def pdb_pm():
 
 def prof_call(func, *args):
     # 输出函数调用性能分析。
-    from cProfile import Profile
-    from pstats import Stats
-
     prof = Profile(builtins=False)
     ret = prof.runcall(func, *args)
     Stats(prof).sort_stats("cumtime").print_stats("(/engine/)|(/action/)", 10)
     return ret
+
+
+def max_key_length(iterator, key):
+    # 计算最宽 key 长度。
+    def f(a, v):
+        n = len(key(v))
+        return a > n and a or n
+
+    return reduce(f, iterator, 0)
+
+
+def http_methods_flag(*methods):
+    # 按标志位输出 HTTP methods 标记。
+    d = {
+        "get": (0, "g"),
+        "post": (1, "p"),
+        "put": (2, "u"),
+        "delete": (3, "d"),
+        "head": (4, "h"),
+        "options": (5, "o"),
+    }
+
+    s = ["-"] * len(d)
+
+    for m in methods:
+        i, t = d.get(m.lower(), (None, None))
+        if i is not None:
+            s[i] = t
+
+    return "".join(s)
