@@ -4,7 +4,9 @@ from os import getpid, killpg
 from signal import signal, SIGINT, SIGTERM, SIGQUIT, SIGUSR1, SIGUSR2, SIG_IGN
 
 #
-# gevent.signal 有问题，接收不到 SIGTERM 信号。
+# TODO
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# gevent.signal 有问题，接收不到 TERM 信号。
 #
 
 

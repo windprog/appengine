@@ -61,20 +61,8 @@ def max_key_length(iterator, key):
 
 def http_methods_flag(*methods):
     # 按标志位输出 HTTP methods 标记。
-    d = {
-        "get": (0, "g"),
-        "post": (1, "p"),
-        "put": (2, "u"),
-        "delete": (3, "d"),
-        "head": (4, "h"),
-        "options": (5, "o"),
-    }
+    flags = (("get", "g"), ("post", "p"), ("put", "u"),
+             ("delete", "d"), ("head", "h"), ("options", "o"))
 
-    s = ["-"] * len(d)
-
-    for m in methods:
-        i, t = d.get(m.lower(), (None, None))
-        if i is not None:
-            s[i] = t
-
-    return "".join(s)
+    methods = map(lambda m: m.lower(), methods)
+    return "".join(map(lambda (m, f): m in methods and f or "-", flags))
