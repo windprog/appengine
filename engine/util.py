@@ -46,7 +46,7 @@ def prof_call(func, *args):
     # 输出函数调用性能分析。
     prof = Profile(builtins=False)
     ret = prof.runcall(func, *args)
-    Stats(prof).sort_stats("cumtime").print_stats("(/engine/)|(/action/)", 10)
+    Stats(prof).sort_stats("time").print_stats("(/engine/)|(/action/)", 10)
     return ret
 
 
