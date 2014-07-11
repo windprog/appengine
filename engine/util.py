@@ -1,10 +1,16 @@
 # coding=utf-8
 
-from sys import argv, modules
+from sys import argv, modules, exc_info
 from os.path import dirname, abspath, join
 from importlib import import_module
 from pkgutil import walk_packages
 from inspect import getmembers
+from traceback import print_exc
+
+try:
+    pdb = __import__("ipdb")
+except:
+    import pdb
 
 
 def app_path(sub):
@@ -28,14 +34,6 @@ def walk_members(package, predicate, callback):
 
 def pdb_pm():
     # 使用 pdb 进入异常现场。
-    try:
-        pdb = __import__("ipdb")
-    except:
-        import pdb
-
-    from sys import exc_info
-    from traceback import print_exc
-
     _, _, tb = exc_info()
     print_exc()
     pdb.post_mortem(tb)
