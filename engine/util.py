@@ -8,12 +8,7 @@ from inspect import getmembers
 from traceback import print_exc
 from cProfile import Profile
 from pstats import Stats
-
-
-try:
-    pdb = __import__("ipdb")
-except:
-    import pdb
+from pdb import post_mortem  # ipdb 会引发 atexit 退出异常。
 
 
 def app_path(sub):
@@ -39,7 +34,7 @@ def pdb_pm():
     # 使用 pdb 进入异常现场。
     _, _, tb = exc_info()
     print_exc()
-    pdb.post_mortem(tb)
+    post_mortem(tb)
 
 
 def prof_call(func, *args):
