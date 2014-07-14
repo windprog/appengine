@@ -23,9 +23,8 @@ from engine.util import app_path
 class Engine(BaseEngine, Signaler):
 
     #
-    # * 基于 gevent.pywsgi 实现。
-    # * 支持多 worker 进程。
-    # * 支持 thread pool 异步执行。
+    # 引擎本身只需实现 BaseEngine 接口，信号处理属于额外增强功能。
+    # 子进程创建、退出都属于系统信号范畴，统一由 Singaler 处理。
     #
 
     def __init__(self, server):

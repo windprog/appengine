@@ -7,11 +7,6 @@ from debug import DebugEngine
 from scheduler import Scheduler, TAG_ASYNC
 from helper import not_found
 
-#
-# TODO
-# ~~~~~~~~~
-#
-
 
 class Server(object):
 
@@ -28,7 +23,7 @@ class Server(object):
         if handler is None:
             return not_found(start_response)
 
-        # 调度器
+        # 调度器 (异常保护)
         with Scheduler(handler):
             # 根据 Handler 参数列表动态构建实参对象。
             # 省略掉不需要的中间对象，以提升性能，减少 GC 压力。
