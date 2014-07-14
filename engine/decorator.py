@@ -2,12 +2,6 @@
 
 
 TAG_URLS = "__urls__"
-TAG_ASYNC = "__async__"
-
-#
-# TODO
-# ~~~~~~~~
-#
 
 
 def url(path, methods="GET"):
@@ -21,9 +15,3 @@ def url(path, methods="GET"):
         return cls
 
     return set
-
-
-def async(func):
-    # 添加 async 标记。
-    setattr(func, TAG_ASYNC, True)
-    return func

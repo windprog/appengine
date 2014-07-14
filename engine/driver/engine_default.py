@@ -1,8 +1,6 @@
 # coding=utf-8
 
 from __future__ import print_function
-
-from os import wait, WIFEXITED
 from socket import AF_INET, SOL_SOCKET, SO_REUSEADDR
 
 from gevent import wait as gwait
@@ -18,6 +16,10 @@ from engine.interface import BaseEngine
 from engine.util import app_path
 
 
+# from gevent.monkey import patch_all
+# patch_all()
+
+
 class Engine(BaseEngine, Signaler):
 
     #
@@ -29,7 +31,6 @@ class Engine(BaseEngine, Signaler):
     def __init__(self, server):
         self._server = server
         self._pool = ThreadPool(CPUS * 4)
-        self._pids = []
         self._listen_sock = None
         self._wsgi_server = None
 
@@ -46,34 +47,11 @@ class Engine(BaseEngine, Signaler):
         self.fork_workers(WORKERS or CPUS)
         self.parent_execute()
 
-    # --- parent ---------------------------------------------------------------- #
-
     def fork_workers(self, num):
         for i in range(num):
-            pid = fork()
-
-            if pid > 0:
-                self._pids.append(pid)
-            else:
+            if fork() == 0:
                 self.worker_execute()
                 exit(0)
-
-    def parent_execute(self):
-        Signaler.parent_execute(self)
-
-        # 等待所有子进程退出。
-        while self._pids:
-            try:
-                pid, status = wait()
-
-                # 如果子进程非正常退出，新建。
-                (not WIFEXITED(status)) and self._fork(1)
-            except OSError:
-                continue
-
-            self._pids.remove(pid)
-
-    # --- worker ---------------------------------------------------------------- #
 
     def worker_execute(self):
         Signaler.worker_execute(self)

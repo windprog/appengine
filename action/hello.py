@@ -1,7 +1,7 @@
 # coding=utf-8
 
 import time
-from engine import url, async
+from engine import url
 
 
 def test():
@@ -25,7 +25,6 @@ def hello(environ, start_response):
     return s
 
 
-@async
 @url("/async")
 def hello_async(environ, start_response):
     s = block_test()
