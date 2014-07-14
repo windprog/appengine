@@ -43,5 +43,5 @@ application = tornado.web.Application([
 if __name__ == "__main__":
     server = tornado.httpserver.HTTPServer(application)
     server.bind(8888)
-    server.start(9)  # Forks multiple sub-processes
+    server.start(0)  # Forks multiple sub-processes
     tornado.ioloop.IOLoop.instance().start()

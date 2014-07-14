@@ -28,10 +28,16 @@ class DebugEngine(BaseEngine):
         Reloader(self)
         signal(SIGINT, lambda *args: exit(0))
 
+    def run(self):
+        make_server(HOST, PORT, self._execute).serve_forever()
+
     def reload(self):
         # 设置重新载入标记。
         with self._lock:
             self._reload = True
+
+    def async_execute(self, func, *args, **kwargs):
+        return func(*args, **kwargs)
 
     def _execute(self, environ, start_response):
         try:
@@ -41,18 +47,12 @@ class DebugEngine(BaseEngine):
                     self._reload = False
                     Router.instance.reset().load()
 
-            # 路由匹配。
-            handler, kwargs = self._server.match(environ)
-            print "\n=== {0}.{1} ===\n".format(handler.__module__, handler.__name__)
-
             # 使用 Profile 输出性能分析数据。
-            return prof_call(self._server.execute, environ, start_response, handler, kwargs)
+            print "-" * 80
+            return prof_call(self._server.execute, environ, start_response)
         except:
             # 进入异常现场。
             pdb_pm()
-
-    def run(self):
-        make_server(HOST, PORT, self._execute).serve_forever()
 
 
 # ------------------------------------------------------------------------ #

@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from abc import ABCMeta, abstractmethod
 from os import getpid, killpg
 from signal import signal, SIGINT, SIGTERM, SIGQUIT, SIGUSR1, SIGUSR2, SIG_IGN
 
@@ -11,6 +12,8 @@ from signal import signal, SIGINT, SIGTERM, SIGQUIT, SIGUSR1, SIGUSR2, SIG_IGN
 
 
 class Signaler(object):
+
+    __metaclass__ = ABCMeta
 
     #
     # Application Singal
@@ -27,10 +30,15 @@ class Signaler(object):
     # QUIT     : 停止接入服务，立即终止子进程。
     #
 
-    def __init__(self):
+    @abstractmethod
+    def fork_workers(self, num):
         pass
 
-    def parent_signal(self, fork_workers=None):
+    @abstractmethod
+    def worker_stop(self, graceful):
+        pass
+
+    def parent_execute(self):
         # 忽略信号。
         map(lambda s: signal(s, SIG_IGN), (SIGINT, SIGUSR1, SIGUSR2))
 
@@ -38,13 +46,12 @@ class Signaler(object):
         signal(SIGTERM, lambda *args: killpg(getpid(), SIGINT))
 
         # 增加子进程。
-        fork_workers and signal(SIGUSR1, lambda *args: fork_workers(1))
+        signal(SIGUSR1, lambda *args: self.fork_workers(1))
 
-    def worker_signal(self, stop_worker=None):
+    def worker_execute(self):
         # 忽略信号。
         map(lambda s: signal(s, SIG_IGN), (SIGUSR1, SIGUSR2))
 
         # 退出子进程。
-        if stop_worker:
-            map(lambda s: signal(s, lambda *args: stop_worker()), (SIGINT, SIGTERM))
-            signal(SIGQUIT, lambda *args: stop_worker(False))
+        map(lambda s: signal(s, lambda *args: self.worker_stop(True)), (SIGINT, SIGTERM))
+        signal(SIGQUIT, lambda *args: self.worker_stop(False))

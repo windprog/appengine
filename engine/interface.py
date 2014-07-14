@@ -15,6 +15,10 @@ class BaseEngine(object):
         pass
 
     @abstractmethod
+    def async_execute(self, func, *args, **kwargs):
+        pass
+
+    @abstractmethod
     def run(self):
         pass
 

@@ -16,9 +16,11 @@ def Welcome():
     # 输出欢迎信息。
     #
 
-    from config import options
+    import config
     from router import Router
     from decorator import TAG_ASYNC
+    from string import uppercase
+
     from util import max_key_length, http_methods_flag
 
     def pprint(iterator, title, key, callback):
@@ -28,6 +30,8 @@ def Welcome():
         map(lambda v: callback(v, n), d)
 
     # 配置信息。
+    options = {k: v for k, v in vars(config).iteritems() if set(k) < set(uppercase + "_")}
+
     pprint(options.iteritems(),
            "Options",
            lambda (k, v): k,

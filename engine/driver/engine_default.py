@@ -15,7 +15,6 @@ from gevent.event import Event
 from engine.config import HOST, PORT, WORKERS, CPUS, HTTPS, HTTPS_KEY, HTTPS_CERT
 from engine.signaler import Signaler
 from engine.interface import BaseEngine
-from engine.decorator import TAG_ASYNC
 from engine.util import app_path
 
 
@@ -44,24 +43,23 @@ class Engine(BaseEngine, Signaler):
         self._listen_sock.listen(2048)
         self._listen_sock.setblocking(0)
 
-        self._fork(WORKERS or CPUS * 2 + 1)
-        self._parent()
+        self.fork_workers(WORKERS or CPUS)
+        self.parent_execute()
 
     # --- parent ---------------------------------------------------------------- #
 
-    def _fork(self, num):
+    def fork_workers(self, num):
         for i in range(num):
             pid = fork()
 
             if pid > 0:
                 self._pids.append(pid)
             else:
-                self._worker()
+                self.worker_execute()
                 exit(0)
 
-    def _parent(self):
-        # 注册信号。
-        self.parent_signal(self._fork)
+    def parent_execute(self):
+        Signaler.parent_execute(self)
 
         # 等待所有子进程退出。
         while self._pids:
@@ -77,35 +75,26 @@ class Engine(BaseEngine, Signaler):
 
     # --- worker ---------------------------------------------------------------- #
 
-    def _worker(self):
-        # 注册信号。
-        self.worker_signal(self._stop)
+    def worker_execute(self):
+        Signaler.worker_execute(self)
 
         # 启动服务器。
         kwargs = HTTPS and \
             {k: app_path("ssl/" + v) for k, v in (("keyfile", HTTPS_KEY), ("certfile", HTTPS_CERT))} or \
             {}
 
-        self._wsgi_server = WSGIServer(self._listen_sock, self._handler, log=None, **kwargs)
+        self._wsgi_server = WSGIServer(self._listen_sock, self._server.execute, log=None, **kwargs)
         self._wsgi_server.serve_forever()
 
         # 等待所有处理结束，超时 10 秒。
         hasattr(self._wsgi_server, "__graceful__") and gwait(timeout=10)
 
-    def _stop(self, graceful=True):
-        # 停止服务器。
+    def worker_stop(self, graceful):
         stop = lambda *args: self._wsgi_server and self._wsgi_server.stop()
         graceful and (setattr(self._wsgi_server, "__graceful__", True), stop()) or stop()
 
-    def _handler(self, environ, start_response):
-        # 请求处理。
-        handler, kwargs = self._server.match(environ)
-        args = (environ, start_response, handler, kwargs)
-
-        if hasattr(handler, TAG_ASYNC):
-            e = Event()
-            g = self._pool.apply_async(self._server.execute, args, callback=lambda ret: e.set())
-            e.wait()
-            return g.get()
-
-        return self._server.execute(*args)
+    def async_execute(self, func, *args, **kwargs):
+        e = Event()
+        g = self._pool.apply_async(func, args, kwargs, callback=lambda ret: e.set())
+        e.wait()
+        return g.get()
