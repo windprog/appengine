@@ -43,7 +43,7 @@ class Engine(BaseEngine, Signaler):
         self._listen_sock.listen(2048)
         self._listen_sock.setblocking(0)
 
-        self.fork_workers(WORKERS or CPUS)
+        self.fork_workers(WORKERS or CPUS + 1)
         self.parent_execute()
 
     def fork_workers(self, num):
