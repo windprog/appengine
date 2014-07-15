@@ -35,7 +35,7 @@ HTTPS = False
 HTTPS_KEY = "server.key"
 HTTPS_CERT = "server.crt"
 
-# 调度器异步操作阈值(秒)。
+# 调度器异步阈值(秒)。
 THRESHOLD = 0.01
 
 

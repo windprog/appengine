@@ -2,41 +2,34 @@
 # coding=utf-8
 
 import time
+
 import tornado.ioloop
 import tornado.web
 import tornado.httpserver
 import tornado.gen
 
-import futures
-pool = futures.ThreadPoolExecutor(8)
 
+class AsyncHandler(tornado.web.RequestHandler):
 
-def block_test():
-    time.sleep(0.01)
-    return "Hello, World!\n"
-
-
-def test():
-    return "Hello, World!\n"
-
-
-class HelloAsyncHandler(tornado.web.RequestHandler):
+    def test(self, callback):
+        time.sleep(0.01)
+        callback("Hello, World!\n")
 
     @tornado.web.asynchronous
     @tornado.gen.coroutine
     def get(self):
-        s = yield pool.submit(block_test)
+        s = yield tornado.gen.Task(self.test)
         self.write(s)
 
 
 class HelloHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.write(test())
+        self.write("Hello, World!\n")
 
 
 application = tornado.web.Application([
-    (r"/async", HelloAsyncHandler),
+    (r"/async", AsyncHandler),
     (r"/", HelloHandler),
 ])
 

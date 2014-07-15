@@ -1,21 +1,12 @@
 # coding=utf-8
 
-import time
+from time import sleep
 from engine import url
-
-
-def test():
-    return "Hello, World!\n"
-
-
-def block_test():
-    time.sleep(0.01)
-    return "Hello, World!\n"
 
 
 @url("/")
 def hello(environ, start_response):
-    s = test()
+    s = "Hello, World!\n"
 
     start_response("200 OK", [
         ("Content-Type", "text/plain"),
@@ -26,8 +17,9 @@ def hello(environ, start_response):
 
 
 @url("/async")
-def hello_async(environ, start_response):
-    s = block_test()
+def async(environ, start_response):
+    sleep(0.01)
+    s = "Hello, World!\n"
 
     start_response("200 OK", [
         ("Content-Type", "text/plain"),

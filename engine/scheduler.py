@@ -3,37 +3,57 @@
 from time import time
 from config import THRESHOLD
 
-SCHED_ASYNC = "__scheduler_async__"
+
+# 异步标记
 TAG_ASYNC = "__async__"
 
 
 class Scheduler(object):
 
     #
-    # 调度器
-    #
+    # 异步调度器策略
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # 1. 每 10 秒采样一次执行时长，总计保存最后 6 次采样。
+    # 2. 如果所保存的采样均超出阈值，则以异步执行。
 
-    def __new__(cls, *args, **kwargs):
-        o = getattr(cls, "__instance__", None)
-        if not o:
-            o = object.__new__(cls)
-            cls.__instance__ = o
+    __slots__ = ("_handler", "_scheding", "_start")
 
-        return o
+    # 最后采样时间。
+    LAST = "__sched_last__"
+
+    # 采样间隔(秒)
+    INTERVAL = 10
+
+    # 采样列表。
+    SAMPLING = "__sched_sampling__"
+
+    # 采样长度
+    SAMPLING_LEN = 6
 
     def __init__(self, handler):
         self._handler = handler
-        self._sched_async = hasattr(self._handler, SCHED_ASYNC)
+        self._scheding = time() - getattr(self._handler, self.LAST, 0) > self.INTERVAL
 
     def __enter__(self):
-        # 异步调度检查。
-        if not self._sched_async:
+        if self._scheding:
             self._start = time()
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # 异步调度标记。
-        if not self._sched_async:
-            setattr(self._handler, SCHED_ASYNC, True)
-            (time() - self._start >= THRESHOLD) and setattr(self._handler, TAG_ASYNC, True)
+        if self._scheding:
+            # 本次执行是否超出阈值。
+            exceed = (time() - self._start) >= THRESHOLD
+
+            # 最后的采样列表。
+            sampling = getattr(self._handler, self.SAMPLING, tuple())
+            sampling = len(sampling) >= self.SAMPLING_LEN and \
+                sampling[-(self.SAMPLING_LEN - 1):] + (exceed,) or \
+                sampling + (exceed,)
+
+            # 异步策略。
+            setattr(self._handler, TAG_ASYNC, all(sampling))
+
+            # 更新采样状态。
+            setattr(self._handler, self.SAMPLING, sampling)
+            setattr(self._handler, self.LAST, time())
 
         return True  # 阻断异常

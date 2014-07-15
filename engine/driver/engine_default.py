@@ -16,8 +16,8 @@ from engine.interface import BaseEngine
 from engine.util import app_path
 
 
-# from gevent.monkey import patch_all
-# patch_all()
+from gevent.monkey import patch_socket
+patch_socket()
 
 
 class Engine(BaseEngine, Signaler):
