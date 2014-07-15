@@ -7,6 +7,17 @@ import tornado.ioloop
 import tornado.web
 import tornado.httpserver
 import tornado.gen
+import tornado.httpclient
+
+
+class RemoteHandler(tornado.web.RequestHandler):
+
+    @tornado.web.asynchronous
+    @tornado.gen.coroutine
+    def get(self):
+        client = tornado.httpclient.AsyncHTTPClient()
+        s = yield client.fetch("http://220.181.40.167:8080")
+        self.write(s.body)
 
 
 class AsyncHandler(tornado.web.RequestHandler):
@@ -29,6 +40,7 @@ class HelloHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application([
+    (r"/remote", RemoteHandler),
     (r"/async", AsyncHandler),
     (r"/", HelloHandler),
 ])
