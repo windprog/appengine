@@ -36,7 +36,7 @@ HTTPS_KEY = "server.key"
 HTTPS_CERT = "server.crt"
 
 # 调度器异步阈值(秒)。
-THRESHOLD = 0.01
+THRESHOLD = 0.1
 
 
 # --- 以下内容请勿修改 --------------------------------------------------------- #

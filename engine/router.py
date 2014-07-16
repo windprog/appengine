@@ -24,6 +24,7 @@ class Router(object):
     def __init__(self):
         self._handlers = {}  # {url:(handler, methods)}
         self._selector = Selector()
+        self._cache = {}
         self.load()
 
     handlers = property(lambda self: self._handlers)
@@ -45,5 +46,16 @@ class Router(object):
         return self
 
     def match(self, environ):
-        # 返回 handler 和 kwargs。
-        return self._selector.match(environ)
+        # 从缓存中查找固定 URL 匹配。
+        key = "{0}|{1}".format(environ["REQUEST_METHOD"], environ["PATH_INFO"])
+        handler = self._cache.get(key, None)
+        if handler:
+            return handler, {}
+
+        handler, kwargs = self._selector.match(environ)
+
+        # 如果 URL 固定，没有分解参数，缓存。
+        if not kwargs and key not in self._cache:
+            self._cache[key] = handler
+
+        return handler, kwargs
