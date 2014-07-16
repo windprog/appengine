@@ -23,7 +23,7 @@ class RemoteHandler(tornado.web.RequestHandler):
 class AsyncHandler(tornado.web.RequestHandler):
 
     def test(self, callback):
-        time.sleep(0.01)
+        time.sleep(0.2)
         callback("Hello, World!\n")
 
     @tornado.web.asynchronous

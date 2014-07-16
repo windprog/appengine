@@ -1,59 +1,56 @@
 # coding=utf-8
 
 from time import time
+from functools import partial
+
 from config import THRESHOLD
-
-
-# 异步标记
-TAG_ASYNC = "__async__"
 
 
 class Scheduler(object):
 
     #
     # 异步调度器策略
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # 1. 每 10 秒采样一次执行时长，总计保存最后 6 次采样。
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # 1. 每 1 分钟采样一次执行时长，总计保存最后 6 次采样。
     # 2. 如果所保存的采样均超出阈值，则以异步执行。
+    #
+    #
+    # TODO
+    # ~~~~~~~~~~~~~~~~~~~~~~~
+    # 因为 engine 可能以 coroutine/threadpool 方式执行，所以会存在多个 Scheduler，因此不能用单例。
+    # 测量时长，可能是 coroutine/threadpool 造成的，应该改进采样方式。
+    #
 
-    __slots__ = ("_handler", "_scheding", "_start")
+    __slots__ = ("_engine", "_handler", "_start")
 
-    # 最后采样时间。
-    LAST = "__sched_last__"
+    ASYNC = "__async__"
+    LAST = "__last__"
+    SAMPLES = "__samples__"
 
-    # 采样间隔(秒)
-    INTERVAL = 10
-
-    # 采样列表。
-    SAMPLING = "__sched_sampling__"
-
-    # 采样长度
-    SAMPLING_LEN = 6
-
-    def __init__(self, handler):
+    def __init__(self, engine, handler):
+        self._engine = engine
         self._handler = handler
-        self._scheding = time() - getattr(self._handler, self.LAST, 0) > self.INTERVAL
 
     def __enter__(self):
-        if self._scheding:
-            self._start = time()
+        execute = hasattr(self._handler, self.ASYNC) and \
+            partial(self._engine.async_execute, self._handler) or \
+            self._handler
+
+        self._start = time()
+        return execute
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self._scheding:
+        if self._start - getattr(self._handler, self.LAST, 0) >= 60:  # 1 分钟
             # 本次执行是否超出阈值。
             exceed = (time() - self._start) >= THRESHOLD
 
             # 最后的采样列表。
-            sampling = getattr(self._handler, self.SAMPLING, tuple())
-            sampling = len(sampling) >= self.SAMPLING_LEN and \
-                sampling[-(self.SAMPLING_LEN - 1):] + (exceed,) or \
-                sampling + (exceed,)
+            samples = getattr(self._handler, self.SAMPLES, tuple())
+            samples = len(samples) >= 6 and samples[-5:] + (exceed,) or samples + (exceed,)
 
-            # 异步策略。
-            setattr(self._handler, TAG_ASYNC, all(sampling))
-
-            # 更新采样状态。
-            setattr(self._handler, self.SAMPLING, sampling)
-            setattr(self._handler, self.LAST, time())
+            # 更新状态。
+            setattr(self._handler, self.ASYNC, all(samples))
+            setattr(self._handler, self.SAMPLES, samples)
+            setattr(self._handler, self.LAST, self._start)
 
         return True  # 阻断异常

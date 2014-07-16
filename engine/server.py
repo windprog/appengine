@@ -4,7 +4,7 @@ from config import DEBUG, Engine
 from router import Router
 from parser import Request, Response
 from debug import DebugEngine
-from scheduler import Scheduler, TAG_ASYNC
+from scheduler import Scheduler
 from helper import not_found
 
 
@@ -23,30 +23,29 @@ class Server(object):
         if handler is None:
             return not_found(start_response)
 
+        # 根据 Handler 参数列表动态构建实参对象。
+        # 省略掉不需要的中间对象，以提升性能，减少 GC 压力。
+        handler_args = handler.func_code.co_varnames[:handler.func_code.co_argcount]
+
+        if "environ" in handler_args:
+            kwargs["environ"] = environ
+        if "start_response" in handler_args:
+            kwargs["start_response"] = start_response
+        if "request" in handler_args:
+            kwargs["request"] = Request(environ)
+        if "response" in handler_args:
+            kwargs["response"] = Response()
+
         # 调度器 (异常保护)
-        with Scheduler(handler):
-            # 根据 Handler 参数列表动态构建实参对象。
-            # 省略掉不需要的中间对象，以提升性能，减少 GC 压力。
-            handler_args = handler.func_code.co_varnames[:handler.func_code.co_argcount]
+        with Scheduler(self._engine, handler) as execute:
+            ret = execute(**kwargs)
 
-            if "environ" in handler_args:
-                kwargs["environ"] = environ
-            if "start_response" in handler_args:
-                kwargs["start_response"] = start_response
-            if "request" in handler_args:
-                kwargs["request"] = Request(environ)
-            if "response" in handler_args:
-                kwargs["response"] = Response()
+        # 处理结果。
+        if "response" in handler_args:
+            return kwargs["response"](environ, start_response)
+        elif not "start_response" in handler_args:
+            return Response(ret)(environ, start_response)
+        elif hasattr(ret, "__iter__"):
+            return ret
 
-            # 执行。
-            ret = hasattr(handler, TAG_ASYNC) and self._engine.async_execute(handler, **kwargs) or handler(**kwargs)
-
-            # 处理结果。
-            if "response" in handler_args:
-                return kwargs["response"](environ, start_response)
-            elif not "start_response" in handler_args:
-                return Response(ret)(environ, start_response)
-            elif hasattr(ret, "__iter__"):
-                return ret
-
-            return (ret,)
+        return (ret,)
