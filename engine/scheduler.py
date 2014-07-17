@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from time import time
+from collections import defaultdict
 from functools import partial
 
 from config import THRESHOLD
@@ -23,34 +24,35 @@ class Scheduler(object):
 
     __slots__ = ("_engine", "_handler", "_start")
 
-    ASYNC = "__async__"
-    LAST = "__last__"
-    SAMPLES = "__samples__"
+    async = dict()  # 异步标志
+    last = defaultdict(lambda: 0)  # 最后调度时间
+    samples = defaultdict(tuple)  # 采样列表
 
     def __init__(self, engine, handler):
         self._engine = engine
         self._handler = handler
 
     def __enter__(self):
-        execute = hasattr(self._handler, self.ASYNC) and \
-            partial(self._engine.async_execute, self._handler) or \
-            self._handler
-
         self._start = time()
-        return execute
+        return self.async.get(self._handler, self._handler)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self._start - getattr(self._handler, self.LAST, 0) >= 60:  # 1 分钟
+        if self._start - self.last[self._handler] >= 60:  # 1 分钟
             # 本次执行是否超出阈值。
             exceed = (time() - self._start) >= THRESHOLD
 
             # 最后的采样列表。
-            samples = getattr(self._handler, self.SAMPLES, tuple())
+            samples = self.samples[self._handler]
             samples = len(samples) >= 6 and samples[-5:] + (exceed,) or samples + (exceed,)
 
+            # 异步决策。
+            if all(samples):
+                self.async.setdefault(self._handler, partial(self._engine.async_execute, self._handler))
+            elif self._handler in self.async:
+                del self.async[self._handler]
+
             # 更新状态。
-            setattr(self._handler, self.ASYNC, all(samples))
-            setattr(self._handler, self.SAMPLES, samples)
-            setattr(self._handler, self.LAST, self._start)
+            self.samples[self._handler] = samples
+            self.last[self._handler] = self._start
 
         return True  # 阻断异常
