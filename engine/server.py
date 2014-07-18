@@ -4,7 +4,7 @@ from config import DEBUG, Engine
 from router import Router
 from parser import Request, Response
 from debug import DebugEngine
-from scheduler import Scheduler
+from scheduler import Scheduler2
 from helper import not_found
 
 
@@ -37,7 +37,7 @@ class Server(object):
             kwargs["response"] = Response()
 
         # 调度器 (异常保护)
-        with Scheduler(self._engine, handler) as execute:
+        with Scheduler2(self._engine, handler) as execute:
             ret = execute(**kwargs)
 
         # 处理结果。
