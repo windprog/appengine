@@ -51,11 +51,11 @@ CPUS = cpu_count()
 # Action 模块。
 Action = import_module("action")
 
+# 合并用户配置
+globals().update(vars(import_module("config")))
+
 # 各驱动实现对象。
 Engine = import_module("engine.driver.engine_" + ENGINE).Engine
 Selector = import_module("engine.driver.router_" + SELECTOR).Selector
 Request = import_module("engine.driver.parser_" + PARSER).Request
 Response = import_module("engine.driver.parser_" + PARSER).Response
-
-# 合并用户配置
-globals().update(vars(import_module("config")))
