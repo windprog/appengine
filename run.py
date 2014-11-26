@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
+import os
+from engine.util import run_server
 
-from engine import Server, Welcome
+os.environ.setdefault("APPENGINE_SETTINGS_MODULE", "config")
 
-Welcome()
-Server().run()
+run_server()

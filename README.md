@@ -1,24 +1,25 @@
-练习...
+#appengine
+=========
+appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appengine)
 
----
+**修改内容**
 
-**目标**
+* 修改装载配置方式
+* 可安装到系统环境 编写setup.py
 
-* 精简执行流程，减少函数调用次数和中间对象数量。
-* 按需装配，选择合适的组件作为驱动。
+#安装说明
+===================
+##linux
+首先下载源码，可以直接点击download下载，[点击下载](https://github.com/windprog/appengine/archive/master.zip)，也可以在shell下输入:
 
+	git clone https://github.com/windprog/appengine.git
 
-**功能**:
+如果是压缩包记得解压，安装依赖包：
 
-* 默认核心基于 gevent pywsgi，greenlet 协程并发。
-* 使用 thread pool 完成异步调用，logic 无需改动。
-* 将标记好的 logic 放到 action 目录，系统自动载入执行。
-* 提供 debug 模式，支持异常现场调试，profile 输出。
-* 如子进程意外终止，自动新建，确保服务进程数量。
-* 支持用信号终止或新增工作子进程。
+    sudo pip install -r requirements.txt
 
-**TODO**
+进去后可以看到setup.py这个就是安装文件了，注意你需要有python环境,运行安装到python系统环境:
 
-* 动态调度器。
-* 监控。
-* 使用 Cython 编写/优化部分算法。
+	python setup.py
+
+也可直接将 engine 复制到项目目录使用

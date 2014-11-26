@@ -40,3 +40,27 @@ def remote(environ, start_response):
     ])
 
     return s
+
+@url("/add", "GET")
+def add(environ, start_response):
+    if not hasattr(add, "test_count"):
+        test_count = 0
+        setattr(add, "test_count", test_count)
+        print "set"
+    else:
+        test_count = getattr(add, "test_count")
+        setattr(add, "test_count", test_count+1)
+
+    from engine.router import Router
+    import os
+    Router.instance._selector.add("/test%s" % test_count, ['GET'], add)
+
+    s = "<a href='/test%s'>test%s, select_count:%s, pid:%s</a>" % (
+        test_count, test_count, len(Router.instance._selector._maps._rules), os.getpid())
+
+    start_response("200 OK", [
+        ("Content-Type", "text/html"),
+        ("Content-Length", str(len(s)))
+    ])
+
+    return s

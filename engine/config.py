@@ -31,6 +31,7 @@ SELECTOR = "default"
 PARSER = "default"
 
 # HTTPS
+# 文件存放于项目目录的 ssl/ 子目录下
 HTTPS = False
 HTTPS_KEY = "server.key"
 HTTPS_CERT = "server.crt"
@@ -48,11 +49,37 @@ from importlib import import_module
 # CPU Core 数量。
 CPUS = cpu_count()
 
-# Action 模块。
-Action = import_module("action")
+ENVIRONMENT_VARIABLE = "APPENGINE_SETTINGS_MODULE"
 
-# 合并用户配置
-globals().update(vars(import_module("config")))
+# 需要载入的Action 模块默认值。
+ACTIONS = [
+    "action",
+    #"plugs.qiniudn"
+]
+
+
+def load_config():
+    import os
+    settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
+    # 默认载入根目录的config.py
+    if not settings_module:
+        settings_module = "config"
+    try:
+        mod = import_module(settings_module)
+    except ImportError as e:
+        raise ImportError(
+            "Could not import settings '%s' (Is it on sys.path? Is there an import error in the settings file?): %s"
+            % (settings_module, e)
+        )
+    # 合并用户配置
+    globals().update(vars(mod))
+
+# 获取用户配置
+load_config()
+
+# Action模块载入
+Action_module_list = [import_module(item) for item in ACTIONS]
+
 
 # 各驱动实现对象。
 Engine = import_module("engine.driver.engine_" + ENGINE).Engine

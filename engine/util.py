@@ -16,6 +16,11 @@ def app_path(sub):
     return join(dirname(abspath(argv[0])), sub)
 
 
+def mod_path(mod):
+    #返回模块的相对路径
+    return join(*mod.__name__.split("."))
+
+
 def walk_members(package, predicate, callback):
     # 遍历包中所有模块成员。
     for _, name, ispkg in walk_packages(package.__path__, package.__name__ + "."):
@@ -38,6 +43,7 @@ def pdb_pm():
 
 
 def prof_call(func, *args):
+    #TODO 这里需要测试兼容性
     # 输出函数调用性能分析。
     prof = Profile(builtins=False)
     ret = prof.runcall(func, *args)
@@ -61,3 +67,12 @@ def http_methods_flag(*methods):
 
     methods = map(lambda m: m.lower(), methods)
     return "".join(map(lambda (m, f): m in methods and f or "-", flags))
+
+
+def run_server():
+    # 在引入engine模块前，必须设置环境变量 APPENGINE_SETTINGS_MODULE 更改默认配置
+    # os.environ.setdefault("APPENGINE_SETTINGS_MODULE", "config")
+    from engine import Server, Welcome
+
+    Welcome()
+    Server().run()

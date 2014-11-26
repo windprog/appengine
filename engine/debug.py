@@ -8,9 +8,9 @@ from os.path import join, getmtime
 from threading import Thread, RLock
 
 from router import Router
-from config import HOST, PORT, Action
+from config import HOST, PORT, Action_module_list
 from interface import BaseEngine
-from util import prof_call, pdb_pm, app_path
+from util import prof_call, pdb_pm, app_path, mod_path
 
 
 class DebugEngine(BaseEngine):
@@ -67,7 +67,7 @@ class Reloader(object):
 
     def __init__(self, server):
         self._server = server
-        self._path = app_path(Action.__name__)
+        self._path_list = [app_path(mod_path(mod)) for mod in Action_module_list]
         self._files = self._scan()
 
         t = Thread(target=self._watch)
@@ -77,13 +77,16 @@ class Reloader(object):
     def _scan(self):
         # 扫描全部文件，返回 {filename: mtime}。
         ret = {}
-        for path, _, files in walk(self._path):
-            for f in files:
-                if not f.endswith(".py"):
-                    continue
+        for action_path in self._path_list:
+            for path, _, files in walk(action_path):
+                # print path, files
 
-                filename = join(path, f)
-                ret[filename] = getmtime(filename)
+                for f in files:
+                    if not f.endswith(".py"):
+                        continue
+
+                    filename = join(path, f)
+                    ret[filename] = getmtime(filename)
 
         return ret
 
@@ -95,5 +98,6 @@ class Reloader(object):
 
             # 通过 key 对称差集来判断是否有文件新增或删除，value 则用于判断是否有修改时间变化。
             if new.viewkeys() ^ self._files.viewkeys() or set(new.values()) ^ set(self._files.values()):
+                print "new file"
                 self._files = new
                 self._server.reload()
