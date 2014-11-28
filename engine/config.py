@@ -3,7 +3,7 @@
 #
 # 系统配置文件
 #
-# 该配置会被根目录下 config.py 中同名设置覆盖。
+# 该配置会被环境变量APPENGINE_SETTINGS_MODULE 的设置文件覆盖，默认值为"config"，是根目录的config.py
 # 不建议直接修改本文件。
 #
 
@@ -11,6 +11,9 @@
 # 调试状态使用 DebugApplication，可输出 profile 信息，
 # 并在出错时，使用 pdb 进入异常现场。便于调试!
 DEBUG = False
+
+# 在调试状态使用PDB进行调试
+USE_PDB = True
 
 # 服务器监听地址。
 HOST = "0.0.0.0"

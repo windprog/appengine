@@ -12,8 +12,10 @@ ACTIONS = [
     #"plugs.qiniudn"
 ]
 
-SUPPORT_DJANGO = True
+SUPPORT_DJANGO = False
 DJANGO_SETTINGS_MODULE = "django_setting.settings"
 DJANGO_URLS = [
     "/admin"
 ]
+
+USE_PDB = False

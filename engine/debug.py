@@ -8,7 +8,7 @@ from os.path import join, getmtime
 from threading import Thread, RLock
 
 from router import Router
-from config import HOST, PORT, Action_module_list
+from config import HOST, PORT, Action_module_list, USE_PDB
 from interface import BaseEngine
 from util import prof_call, pdb_pm, app_path, mod_path
 
@@ -29,7 +29,7 @@ class DebugEngine(BaseEngine):
         signal(SIGINT, lambda *args: exit(0))
 
     def run(self):
-        make_server(HOST, PORT, self._execute).serve_forever()
+        make_server(HOST, PORT, self.pre_execute).serve_forever()
 
     def reload(self):
         # 设置重新载入标记。
@@ -39,20 +39,28 @@ class DebugEngine(BaseEngine):
     def async_execute(self, func, *args, **kwargs):
         return func(*args, **kwargs)
 
-    def _execute(self, environ, start_response):
-        try:
-            # 刷新 Router Handler 配置。
-            with self._lock:
-                if self._reload:
-                    self._reload = False
-                    Router.instance.reset().load()
+    def pre_execute(self, environ, start_response):
+        # 是否使用pdb进行调试
+        if USE_PDB:
+            try:
+                return self._execute(environ, start_response)
+            except:
+                # 进入异常现场。
+                pdb_pm()
+        else:
+            return self._execute(environ, start_response)
 
-            # 使用 Profile 输出性能分析数据。
-            print "-" * 80
-            return prof_call(self._server.execute, environ, start_response)
-        except:
-            # 进入异常现场。
-            pdb_pm()
+
+    def _execute(self, environ, start_response):
+        # 刷新 Router Handler 配置。
+        with self._lock:
+            if self._reload:
+                self._reload = False
+                Router.instance.reset().load()
+
+        # 使用 Profile 输出性能分析数据。
+        print "-" * 80
+        return prof_call(self._server.execute, environ, start_response)
 
 
 # ------------------------------------------------------------------------ #
