@@ -76,3 +76,11 @@ def run_server():
 
     Welcome()
     Server().run()
+
+
+def str_startswith_str_list(source_str, prefix_list):
+    # prefix_list字符串列表 中的一个 匹配 source_str 开头
+    for prefix in prefix_list:
+        if source_str.startswith(prefix):
+            return True
+    return False

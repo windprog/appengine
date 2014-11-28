@@ -39,6 +39,15 @@ HTTPS_CERT = "server.crt"
 # 调度器异步阈值(秒)。
 THRESHOLD = 0.01
 
+# 是否支持django
+SUPPORT_DJANGO = False
+
+# Django相关配置，在SUPPORT_DJANGO == True时生效
+# django环境变量
+DJANGO_SETTINGS_MODULE = "django_setting.settings"
+# 支持django的url列表，如果为空则 appengine匹配失败交给django处理
+DJANGO_URLS = []
+
 
 # --- 以下内容请勿修改 --------------------------------------------------------- #
 
