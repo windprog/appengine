@@ -5,7 +5,7 @@ from router import Router
 from parser import Request, Response
 from debug import DebugEngine
 from scheduler import Scheduler
-from helper import not_found
+from helper import not_found, server_error
 from util import str_startswith_str_list
 
 
@@ -45,7 +45,9 @@ class BaseServer(object):
             ret = execute(**kwargs)
 
         # 处理结果。
-        if "response" in handler_args:
+        if "ret" not in locals():
+            return server_error(start_response)
+        elif "response" in handler_args:
             return kwargs["response"](environ, start_response)
         elif not "start_response" in handler_args:
             return Response(ret)(environ, start_response)
