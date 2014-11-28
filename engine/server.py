@@ -40,9 +40,16 @@ class BaseServer(object):
         if "response" in handler_args:
             kwargs["response"] = Response()
 
-        # 调度器 (异常保护)
-        with Scheduler(self._engine, handler) as execute:
-            ret = execute(**kwargs)
+        # 调度器
+        if DEBUG:
+            # 不使用 with 表达式，让pdb进入更准确的异常现场
+            execute = Scheduler(self._engine, handler)
+            # 如果错误直接抛出异常
+            ret = execute.__enter__()(**kwargs)
+        else:
+            # 异常保护
+            with Scheduler(self._engine, handler) as execute:
+                ret = execute(**kwargs)
 
         # 处理结果。
         if "ret" not in locals():
