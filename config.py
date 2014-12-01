@@ -1,6 +1,6 @@
 # coding=utf-8
 # 详细配置说明请参考engine/config.py
-DEBUG = True
+DEBUG = False
 
 # 服务器监听地址。
 HOST = "0.0.0.0"
@@ -12,10 +12,10 @@ ACTIONS = [
     #"plugs.qiniudn"
 ]
 
-SUPPORT_DJANGO = False
-DJANGO_SETTINGS_MODULE = "django_setting.settings"
+SUPPORT_DJANGO = True
+DJANGO_SETTINGS_MODULE = "django_demo.settings"
 DJANGO_URLS = [
-    "/admin"
+    # "/demo"
 ]
 
-USE_PDB = False
+USE_PDB = True

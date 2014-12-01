@@ -5,7 +5,7 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 **修改内容**
 
 * 修改装载配置方式
-* 可配置兼容django
+* 可配置兼容django, 且支持appengine调度器
 * 让pdb更好的进入异常现场
 * 增加config配置项，可选是否使用ipdb进行调试
 
