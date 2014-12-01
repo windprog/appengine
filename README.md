@@ -31,4 +31,4 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 
 	python setup.py
 
-也可直接将 engine 复制到项目目录使用
+也可直接将 appengine 复制到项目目录使用

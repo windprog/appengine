@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from werkzeug.routing import Map, Rule
-from engine.interface import BaseSelector
+from ..interface import BaseSelector
 
 
 class Selector(BaseSelector):

@@ -1,6 +1,6 @@
 # coding=utf-8
 # 详细配置说明请参考engine/config.py
-DEBUG = False
+DEBUG = True
 
 # 服务器监听地址。
 HOST = "0.0.0.0"

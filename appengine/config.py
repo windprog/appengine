@@ -48,7 +48,9 @@ SUPPORT_DJANGO = False
 # Django相关配置，在SUPPORT_DJANGO == True时生效
 # django环境变量
 DJANGO_SETTINGS_MODULE = "django_setting.settings"
-# 支持django的url列表，如果为空则 appengine匹配失败交给django处理
+# 支持django的url列表
+# 如果为空: appengine匹配失败交给django处理
+# 非空:    其中一个字符串满足从第一个字符开始相同则交给django处理
 DJANGO_URLS = []
 
 
@@ -94,7 +96,7 @@ Action_module_list = [import_module(item) for item in ACTIONS]
 
 
 # 各驱动实现对象。
-Engine = import_module("engine.driver.engine_" + ENGINE).Engine
-Selector = import_module("engine.driver.router_" + SELECTOR).Selector
-Request = import_module("engine.driver.parser_" + PARSER).Request
-Response = import_module("engine.driver.parser_" + PARSER).Response
+Engine = import_module("appengine.driver.engine_" + ENGINE).Engine
+Selector = import_module("appengine.driver.router_" + SELECTOR).Selector
+Request = import_module("appengine.driver.parser_" + PARSER).Request
+Response = import_module("appengine.driver.parser_" + PARSER).Response

@@ -17,5 +17,5 @@ For more information on this file, see
 https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
 """
 
-from engine.support import get_django_application
+from appengine.support import get_django_application
 application = get_django_application()

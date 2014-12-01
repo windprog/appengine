@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from werkzeug.wrappers import Request as wRequest, Response as wResponse
-from engine.interface import BaseRequest, BaseResponse
+from ..interface import BaseRequest, BaseResponse
 
 
 class Request(wRequest, BaseRequest):

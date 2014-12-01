@@ -10,10 +10,10 @@ from gevent.os import fork
 from gevent.threadpool import ThreadPool
 from gevent.event import Event
 
-from engine.config import HOST, PORT, WORKERS, CPUS, HTTPS, HTTPS_KEY, HTTPS_CERT
-from engine.signaler import Signaler
-from engine.interface import BaseEngine
-from engine.util import app_path
+from ..config import HOST, PORT, WORKERS, CPUS, HTTPS, HTTPS_KEY, HTTPS_CERT
+from ..signaler import Signaler
+from ..interface import BaseEngine
+from ..util import app_path
 
 
 from gevent.monkey import patch_socket

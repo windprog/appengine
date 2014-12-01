@@ -76,7 +76,7 @@ def run_server():
         raise ImportError(
             "Could not import settings from env:APPENGINE_SETTINGS_MODULE."
         )
-    from engine import Server, Welcome
+    from appengine import Server, Welcome
 
     Welcome()
     Server().run()
