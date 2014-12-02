@@ -6,6 +6,7 @@
 /static/*
 .idea/*
 *.egg
+*.tar.gz
 .dist/
-http_appengine.egg-info/
+httpappengine.egg-info/
 build/

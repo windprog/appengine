@@ -11,7 +11,7 @@ Desc    :
 """
 from setuptools import setup
 
-from appengine import __version__, __author__, __description__
+from httpappengine import __version__, __author__, __description__
 
 
 setup(

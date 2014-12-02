@@ -2,7 +2,7 @@
 
 from urllib2 import urlopen
 from time import sleep
-from appengine import url
+from httpappengine import url
 
 
 @url("/")
@@ -51,7 +51,7 @@ def add(environ, start_response):
         test_count = getattr(add, "test_count")
         setattr(add, "test_count", test_count+1)
 
-    from appengine.engine.router import Router
+    from httpappengine.engine.router import Router
     import os
     Router.instance._selector.add("/test%s" % test_count, ['GET'], add)
 
