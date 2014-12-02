@@ -49,7 +49,7 @@ SUPPORT_DJANGO = False
 # django环境变量
 DJANGO_SETTINGS_MODULE = "django_setting.settings"
 # 支持django的url列表
-# 如果为空: appengine匹配失败交给django处理
+# 如果为空: engine匹配失败交给django处理
 # 非空:    其中一个字符串满足从第一个字符开始相同则交给django处理
 DJANGO_URLS = []
 
@@ -60,7 +60,7 @@ DJANGO_URLS = []
 from multiprocessing import cpu_count
 from importlib import import_module
 
-__title__ = 'appengine'
+__title__ = 'httpappengine'
 
 # CPU Core 数量。
 CPUS = cpu_count()

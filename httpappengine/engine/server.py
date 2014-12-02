@@ -78,7 +78,7 @@ if SUPPORT_DJANGO:
     def monkey_patch_django(_engine):
         from django.core import urlresolvers
 
-        # 覆盖RegexURLResolver，使得执行handler的时候使用appengine的调度器
+        # 覆盖RegexURLResolver，使得执行handler的时候使用engine的调度器
         class PatchRegexURLResolver(urlresolvers.RegexURLResolver):
             def resolve(self, path):
                 resolver_match = super(PatchRegexURLResolver, self).resolve(path)
