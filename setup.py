@@ -21,6 +21,9 @@ setup(
     url="https://github.com/windprog/appengine",
     author=__author__,
     author_email="windprog@gmail.com",
-    packages=['appengine'],
+    packages=['appengine', 'appengine.engine', 'appengine.engine.driver'],
+    # package_data = {
+    #     'appengine': ['engine/*.py'],
+    # },
     install_requires=['gevent>=1.0.1', 'Werkzeug>=0.9.6']
 )
