@@ -14,7 +14,7 @@ Desc    :   支持各种框架，目前支持django
 def get_django_application():
     if "django_application" not in globals():
         import os
-        from config import DJANGO_SETTINGS_MODULE
+        from .config import DJANGO_SETTINGS_MODULE
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", DJANGO_SETTINGS_MODULE)
         #载入设置
         from django.core.wsgi import get_wsgi_application

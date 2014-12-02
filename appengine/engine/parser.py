@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from config import Request, Response
+from .config import Request, Response
 
 #
 # TODO

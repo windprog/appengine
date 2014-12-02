@@ -2,7 +2,7 @@
 
 from urllib2 import urlopen
 from time import sleep
-from appengine import url
+from appengine.engine import url
 
 
 @url("/")

@@ -60,6 +60,8 @@ DJANGO_URLS = []
 from multiprocessing import cpu_count
 from importlib import import_module
 
+__title__ = 'appengine'
+
 # CPU Core 数量。
 CPUS = cpu_count()
 
@@ -76,17 +78,19 @@ def load_config():
     import os
     settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
     # 默认载入根目录的config.py
-    if not settings_module:
-        settings_module = "config"
-    try:
-        mod = import_module(settings_module)
-    except ImportError as e:
-        raise ImportError(
-            "Could not import settings '%s' (Is it on sys.path? Is there an import error in the settings file?): %s"
-            % (settings_module, e)
-        )
-    # 合并用户配置
-    globals().update(vars(mod))
+    if settings_module:
+        try:
+            mod = import_module(settings_module)
+        except ImportError as e:
+            raise ImportError(
+                "Could not import settings '%s' (Is it on sys.path? Is there an import error in the settings file?): %s"
+                % (settings_module, e)
+            )
+        # 合并用户配置
+        globals().update(vars(mod))
+    else:
+        # 配置不存在
+        print 'error, not found settings file, use default settings.'
 
 # 获取用户配置
 load_config()
@@ -95,8 +99,11 @@ load_config()
 Action_module_list = [import_module(item) for item in ACTIONS]
 
 
+def load_module_sub(sub_name):
+    return import_module("%s.engine.%s" % (__title__, sub_name))
+
 # 各驱动实现对象。
-Engine = import_module("appengine.driver.engine_" + ENGINE).Engine
-Selector = import_module("appengine.driver.router_" + SELECTOR).Selector
-Request = import_module("appengine.driver.parser_" + PARSER).Request
-Response = import_module("appengine.driver.parser_" + PARSER).Response
+Engine = load_module_sub("driver.engine_" + ENGINE).Engine
+Selector = load_module_sub("driver.router_" + SELECTOR).Selector
+Request = load_module_sub("driver.parser_" + PARSER).Request
+Response = load_module_sub("driver.parser_" + PARSER).Response

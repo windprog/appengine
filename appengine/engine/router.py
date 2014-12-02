@@ -1,8 +1,8 @@
 # coding=utf-8
 
-from util import walk_members
-from config import Selector, Action_module_list
-from decorator import TAG_URLS
+from .util import walk_members
+from .config import Selector, Action_module_list
+from .decorator import TAG_URLS
 
 
 class Router(object):

@@ -10,11 +10,10 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 * * 可选支持django
 * 改变django callback，支持appengine调度器(dce1866)
 * 让pdb进入更准确的异常现场(fb8ca0b)
+* 可安装到系统环境 编写setup.py
 
 **TODO**
 
-* 查看django的session实现方式，现在的appengine会用多进程运行，如果是使用内存实现的话需要单进程或者更改实现方式（同用户使用相同worker）。
-* 可安装到系统环境 编写setup.py
 
 #安装说明
 ===================
@@ -23,12 +22,8 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 
 	git clone https://github.com/windprog/appengine.git
 
-如果是压缩包记得解压，安装依赖包：
-
-    sudo pip install -r requirements.txt
-
 进去后可以看到setup.py这个就是安装文件了，注意你需要有python环境,运行安装到python系统环境:
 
-	python setup.py
+	python setup.py install
 
-也可直接将 appengine 复制到项目目录使用
+也可直接将 appengine 文件夹复制到项目目录使用

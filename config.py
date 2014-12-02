@@ -1,5 +1,5 @@
 # coding=utf-8
-# 详细配置说明请参考engine/config.py
+# 详细配置说明请参考appengine/engine/config.py
 DEBUG = True
 
 # 服务器监听地址。

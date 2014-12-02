@@ -4,7 +4,7 @@ from time import time
 from collections import defaultdict
 from functools import partial
 
-from config import THRESHOLD
+from .config import THRESHOLD
 
 
 class Scheduler(object):

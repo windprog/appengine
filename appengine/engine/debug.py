@@ -7,10 +7,10 @@ from os import walk
 from os.path import join, getmtime
 from threading import Thread, RLock
 
-from router import Router
-from config import HOST, PORT, Action_module_list, USE_PDB
-from interface import BaseEngine
-from util import prof_call, pdb_pm, app_path, mod_path
+from .router import Router
+from .config import HOST, PORT, Action_module_list, USE_PDB
+from .interface import BaseEngine
+from .util import prof_call, pdb_pm, app_path, mod_path
 
 
 class DebugEngine(BaseEngine):

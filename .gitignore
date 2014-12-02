@@ -4,4 +4,5 @@
 *.swp
 *~
 /static/*
-.idea/
+.idea/*
+.dist/*
