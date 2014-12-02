@@ -5,5 +5,7 @@
 *~
 /static/*
 .idea/*
+*.egg
 .dist/
 http_appengine.egg-info/
+build/
