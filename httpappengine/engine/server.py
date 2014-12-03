@@ -79,9 +79,13 @@ if SUPPORT_DJANGO:
         from django.core import urlresolvers
 
         def get_engine_callback(callback):
-            def engine_callback(*args, **kwargs):
+            #resolve会递归查找，没必要返回多次。
+            if callback.__name__ == "__engine_callback":
+                return callback
+
+            def __engine_callback(*args, **kwargs):
                 return appengine_scheduler(_engine, callback, args, kwargs)
-            return engine_callback
+            return __engine_callback
 
         # 覆盖RegexURLResolver，使得执行handler的时候使用engine的调度器
         class PatchRegexURLResolver(urlresolvers.RegexURLResolver):
