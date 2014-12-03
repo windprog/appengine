@@ -78,23 +78,34 @@ if SUPPORT_DJANGO:
     def monkey_patch_django(_engine):
         from django.core import urlresolvers
 
+        def get_engine_callback(callback):
+            def engine_callback(*args, **kwargs):
+                return appengine_scheduler(_engine, callback, args, kwargs)
+            return engine_callback
+
         # 覆盖RegexURLResolver，使得执行handler的时候使用engine的调度器
         class PatchRegexURLResolver(urlresolvers.RegexURLResolver):
             def resolve(self, path):
                 resolver_match = super(PatchRegexURLResolver, self).resolve(path)
+                callback = resolver_match.func
 
-                def engine_callback(*args, **kwargs):
-                    return appengine_scheduler(_engine, resolver_match.func, args, kwargs)
                 # 重新设置callback函数
-                resolver_match.func = engine_callback
+                resolver_match.func = get_engine_callback(callback)
                 return resolver_match
 
         urlresolvers.RegexURLResolver = PatchRegexURLResolver
+
+        #patch staitc file handler
+        from django.contrib.staticfiles import views
+        serve = views.serve
+
+        views.serve = get_engine_callback(serve)
 
     class Server(BaseServer):
         def __init__(self):
             BaseServer.__init__(self)
             from support import get_django_application
+            monkey_patch_django(self._engine)
             self.django_application = get_django_application()
 
         def match_failure(self, environ, start_response):
