@@ -14,6 +14,7 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 
 **TODO**
 
+* 性能测试
 
 #安装说明
 ===================
@@ -22,8 +23,8 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 
 	git clone https://github.com/windprog/appengine.git
 
-进去后可以看到setup.py这个就是安装文件了，注意你需要有python环境,运行安装到python系统环境:
+进去后可以看到setup.py这个就是安装文件了，运行安装到python系统环境:
 
 	python setup.py install
 
-也可直接将 appengine 文件夹复制到项目目录使用
+也可直接将 httpappengine 文件夹复制到项目目录使用
