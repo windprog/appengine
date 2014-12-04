@@ -2,7 +2,7 @@
 
 from .util import walk_members
 from .config import settings
-from ..decorator import TAG_URLS
+from ..decorator import TAG_URLS, TAG_FUNC
 
 
 class Router(object):
@@ -36,6 +36,9 @@ class Router(object):
         def add(handler):
             for url, methods in getattr(handler, TAG_URLS).iteritems():
                 self._selector.add(url, methods, handler)
+                # 让程序开始运行时输出正确信息
+                if hasattr(handler, TAG_FUNC):
+                    handler = getattr(handler, TAG_FUNC)
                 self._handlers[url] = (handler, methods)
 
         for mod in settings.Action_module_list:
