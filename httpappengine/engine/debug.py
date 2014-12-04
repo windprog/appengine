@@ -8,7 +8,7 @@ from os.path import join, getmtime
 from threading import Thread, RLock
 
 from .router import Router
-from .config import HOST, PORT, Action_module_list, USE_PDB
+from .config import settings
 from .interface import BaseEngine
 from .util import prof_call, pdb_pm, app_path, mod_path
 
@@ -29,7 +29,7 @@ class DebugEngine(BaseEngine):
         signal(SIGINT, lambda *args: exit(0))
 
     def run(self):
-        make_server(HOST, PORT, self.pre_execute).serve_forever()
+        make_server(settings.HOST, settings.PORT, self.pre_execute).serve_forever()
 
     def reload(self):
         # 设置重新载入标记。
@@ -41,7 +41,7 @@ class DebugEngine(BaseEngine):
 
     def pre_execute(self, environ, start_response):
         # 是否使用pdb进行调试
-        if USE_PDB:
+        if settings.USE_PDB:
             try:
                 return self._execute(environ, start_response)
             except:
@@ -75,7 +75,7 @@ class Reloader(object):
 
     def __init__(self, server):
         self._server = server
-        self._path_list = [app_path(mod_path(mod)) for mod in Action_module_list]
+        self._path_list = [app_path(mod_path(mod)) for mod in settings.Action_module_list]
         self._files = self._scan()
 
         t = Thread(target=self._watch)

@@ -10,7 +10,7 @@ from gevent.os import fork
 from gevent.threadpool import ThreadPool
 from gevent.event import Event
 
-from ..config import HOST, PORT, WORKERS, CPUS, HTTPS, HTTPS_KEY, HTTPS_CERT
+from ..config import settings
 from ..signaler import Signaler
 from ..interface import BaseEngine
 from ..util import app_path
@@ -29,7 +29,7 @@ class Engine(BaseEngine, Signaler):
 
     def __init__(self, server):
         self._server = server
-        self._pool = ThreadPool(CPUS * 4)
+        self._pool = ThreadPool(settings.CPUS * 4)
         self._listen_sock = None
         self._wsgi_server = None
 
@@ -39,11 +39,11 @@ class Engine(BaseEngine, Signaler):
     def run(self):
         self._listen_sock = socket(family=AF_INET)
         self._listen_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        self._listen_sock.bind((HOST, PORT))
+        self._listen_sock.bind((settings.HOST, settings.PORT))
         self._listen_sock.listen(2048)
         self._listen_sock.setblocking(0)
 
-        self.fork_workers(WORKERS or CPUS + 1)
+        self.fork_workers(settings.WORKERS or settings.CPUS + 1)
         self.parent_execute()
 
     def fork_workers(self, num):
@@ -56,8 +56,8 @@ class Engine(BaseEngine, Signaler):
         Signaler.worker_execute(self)
 
         # 启动服务器。
-        kwargs = HTTPS and \
-            {k: app_path("ssl/" + v) for k, v in (("keyfile", HTTPS_KEY), ("certfile", HTTPS_CERT))} or \
+        kwargs = settings.HTTPS and \
+            {k: app_path("ssl/" + v) for k, v in (("keyfile", settings.HTTPS_KEY), ("certfile", settings.HTTPS_CERT))} or \
             {}
 
         self._wsgi_server = WSGIServer(self._listen_sock, self._server.execute, log=None, **kwargs)

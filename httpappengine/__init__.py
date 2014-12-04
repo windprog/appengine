@@ -12,6 +12,7 @@ Desc    :
 __version__ = "0.0.1"
 __author__ = "Windpro"
 __description__ = "High performance http engine, Support Django."
+__title__ = 'httpappengine'
 
 from decorator import url
 from helper import rest

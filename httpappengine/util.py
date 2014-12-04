@@ -12,13 +12,10 @@ Desc    :
 
 
 def run_server():
-    # 在引入engine模块前，必须设置环境变量 APPENGINE_SETTINGS_MODULE 更改默认配置
-    import os
-    if "APPENGINE_SETTINGS_MODULE" not in os.environ:
-        raise ImportError(
-            "Could not import settings from env:APPENGINE_SETTINGS_MODULE."
-        )
     from .engine import Server, Welcome
 
+    server = Server()
+
     Welcome()
-    Server().run()
+
+    server.run()

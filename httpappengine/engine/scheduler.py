@@ -4,7 +4,7 @@ from time import time
 from collections import defaultdict
 from functools import partial
 
-from .config import THRESHOLD
+from .config import settings
 
 
 class Scheduler(object):
@@ -46,7 +46,7 @@ class Scheduler(object):
         ret, exceed = e and self._engine.async_execute(wrap, *args, **kwargs) or wrap(*args, **kwargs)
 
         # 采样列表。
-        samples = self.samples[self._handler][-5:] + (exceed >= THRESHOLD,)
+        samples = self.samples[self._handler][-5:] + (exceed >= settings.THRESHOLD,)
 
         # 异步决策。
         if all(samples):

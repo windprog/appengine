@@ -14,11 +14,16 @@ def Welcome():
     # 输出欢迎信息。
     #
 
-    import config
+    from .config import settings
     from .router import Router
     from string import uppercase
 
     from .util import max_key_length, http_methods_flag
+
+    if not settings.setup_ready():
+        # 没有载入用户配置，请运行 settings.setup() 或 Server() 之后再运行本函数
+        print('Not found Server instance, place sure you new server.')
+        return
 
     def pprint(iterator, title, key, callback):
         print("\n=== {0} ===\n".format(title))
@@ -27,7 +32,7 @@ def Welcome():
         map(lambda v: callback(v, n), d)
 
     # 配置信息。
-    options = {k: v for k, v in vars(config).iteritems() if set(k) < set(uppercase + "_")}
+    options = {k: v for k, v in vars(settings).iteritems() if set(k) < set(uppercase + "_")}
 
     pprint(options.iteritems(),
            "Options",

@@ -1,17 +1,15 @@
 # coding=utf-8
 
-from .config import DEBUG, Engine, SUPPORT_DJANGO, DJANGO_URLS
+from .config import settings
 from .router import Router
-from .parser import Request, Response
 from .debug import DebugEngine
 from .scheduler import Scheduler
 from ..helper import not_found, server_error
-from .util import str_startswith_str_list
 
 
 def appengine_scheduler(_engine, handler, args, kwargs):
     # 调度器
-    if DEBUG:
+    if settings.DEBUG:
         # 不使用 with 表达式，让pdb进入更准确的异常现场
         execute = Scheduler(_engine, handler)
         # 如果错误直接抛出异常
@@ -25,7 +23,14 @@ def appengine_scheduler(_engine, handler, args, kwargs):
 class BaseServer(object):
 
     def __init__(self):
-        self._engine = DEBUG and DebugEngine(self) or Engine(self)
+        # 在引入engine模块前，必须设置环境变量 APPENGINE_SETTINGS_MODULE 更改默认配置
+        import os
+        if "APPENGINE_SETTINGS_MODULE" not in os.environ:
+            raise ImportError(
+                "Could not import settings from env:APPENGINE_SETTINGS_MODULE."
+            )
+        settings.setup()
+        self._engine = settings.DEBUG and DebugEngine(self) or settings.Engine(self)
 
     def run(self):
         self._engine.run()
@@ -39,8 +44,6 @@ class BaseServer(object):
         else:
             return self.match_success(environ, start_response, handler, kwargs)
 
-
-
     def match_success(self, environ, start_response, handler, kwargs):
         # 根据 Handler 参数列表动态构建实参对象。
         # 省略掉不需要的中间对象，以提升性能，减少 GC 压力。
@@ -51,9 +54,9 @@ class BaseServer(object):
         if "start_response" in handler_args:
             kwargs["start_response"] = start_response
         if "request" in handler_args:
-            kwargs["request"] = Request(environ)
+            kwargs["request"] = settings.Request(environ)
         if "response" in handler_args:
-            kwargs["response"] = Response()
+            kwargs["response"] = settings.Response()
 
         # 调度器
         ret = appengine_scheduler(self._engine, handler, (), kwargs)
@@ -64,7 +67,7 @@ class BaseServer(object):
         elif "response" in handler_args:
             return kwargs["response"](environ, start_response)
         elif not "start_response" in handler_args:
-            return Response(ret)(environ, start_response)
+            return settings.Response(ret)(environ, start_response)
         elif hasattr(ret, "__iter__"):
             return ret
 
@@ -74,55 +77,11 @@ class BaseServer(object):
         return not_found(start_response)
 
 
-if SUPPORT_DJANGO:
-    def monkey_patch_django(_engine):
-        from django.core import urlresolvers
-
-        def get_engine_callback(callback):
-            #resolve会递归查找，没必要返回多次。
-            if callback.__name__ == "__engine_callback":
-                return callback
-
-            def __engine_callback(*args, **kwargs):
-                return appengine_scheduler(_engine, callback, args, kwargs)
-            return __engine_callback
-
-        # 覆盖RegexURLResolver，使得执行handler的时候使用engine的调度器
-        class PatchRegexURLResolver(urlresolvers.RegexURLResolver):
-            def resolve(self, path):
-                resolver_match = super(PatchRegexURLResolver, self).resolve(path)
-                callback = resolver_match.func
-
-                # 重新设置callback函数
-                resolver_match.func = get_engine_callback(callback)
-                return resolver_match
-
-        urlresolvers.RegexURLResolver = PatchRegexURLResolver
-
-        #patch staitc file handler
-        from django.contrib.staticfiles import views
-        serve = views.serve
-
-        views.serve = get_engine_callback(serve)
-
-    class Server(BaseServer):
-        def __init__(self):
-            BaseServer.__init__(self)
-            from support import get_django_application
+class Server(BaseServer):
+    def __init__(self):
+        BaseServer.__init__(self)
+        #支持django
+        if settings.SUPPORT_DJANGO:
+            from support import monkey_patch_django, patch_django_Server
             monkey_patch_django(self._engine)
-            self.django_application = get_django_application()
-
-        def match_failure(self, environ, start_response):
-            PATH_INFO = environ.get("PATH_INFO")
-            if DJANGO_URLS and not str_startswith_str_list(PATH_INFO, DJANGO_URLS):
-                return not_found(start_response)
-            else:
-                ret = self.django_application(environ=environ, start_response=start_response)
-                # 处理结果。
-                if ret is None:
-                    return server_error(start_response)
-                return ret
-
-else:
-    class Server(BaseServer):
-        pass
+            patch_django_Server(self)

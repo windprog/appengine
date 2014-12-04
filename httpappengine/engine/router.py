@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from .util import walk_members
-from .config import Selector, Action_module_list
+from .config import settings
 from ..decorator import TAG_URLS
 
 
@@ -23,7 +23,7 @@ class Router(object):
 
     def __init__(self):
         self._handlers = {}  # {url:(handler, methods)}
-        self._selector = Selector()
+        self._selector = settings.Selector()
         self._cache = {}
         self.load()
 
@@ -38,7 +38,7 @@ class Router(object):
                 self._selector.add(url, methods, handler)
                 self._handlers[url] = (handler, methods)
 
-        for mod in Action_module_list:
+        for mod in settings.Action_module_list:
             walk_members(mod, lambda m: hasattr(m, TAG_URLS), add)
 
     def reset(self):
