@@ -6,6 +6,8 @@ from .debug import DebugEngine
 from .scheduler import Scheduler
 from ..helper import not_found, server_error
 
+SERVER_ERROR = -1
+
 
 def appengine_scheduler(_engine, handler, args, kwargs):
     # 调度器
@@ -17,7 +19,11 @@ def appengine_scheduler(_engine, handler, args, kwargs):
     else:
         # 异常保护
         with Scheduler(_engine, handler) as execute:
-            return execute(*args, **kwargs)
+            ret = execute(*args, **kwargs)
+            # 返回值不能为SERVER_ERROR
+            assert ret != SERVER_ERROR
+            return ret
+        return SERVER_ERROR
 
 
 class BaseServer(object):
@@ -62,7 +68,7 @@ class BaseServer(object):
         ret = appengine_scheduler(self._engine, handler, (), kwargs)
 
         # 处理结果。
-        if ret is None:
+        if ret == SERVER_ERROR:
             return server_error(start_response)
         elif "response" in handler_args:
             return kwargs["response"](environ, start_response)
