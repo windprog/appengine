@@ -18,9 +18,12 @@ def url(path, methods="GET"):
     return set
 
 
-def parse_wrapper_return(des_func, sour_func):
+def parse_wrapper_return(wrapper_func):
     # 添加 func 标记，使得框架刚开始运行的时候输出的接口列表信息正确
-    # 这个函数不是必须添加的
-    if not hasattr(des_func, TAG_FUNC):
-        setattr(des_func, TAG_FUNC, sour_func)
-    return des_func
+    # 这个修饰器不是必须使用的。
+    def wrapper(sour_func):
+        des_func = wrapper_func(sour_func)
+        if not hasattr(des_func, TAG_FUNC):
+            setattr(des_func, TAG_FUNC, sour_func)
+        return des_func
+    return wrapper
