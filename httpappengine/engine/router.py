@@ -53,7 +53,7 @@ class Router(object):
         # 从缓存中查找固定 URL 匹配。
         key = "{0}|{1}".format(environ["REQUEST_METHOD"], environ["PATH_INFO"])
         handler = self._cache.get(key, None)
-        if handler:
+        if not settings.DEBUG and handler:
             return handler, {}
 
         handler, kwargs = self._selector.match(environ)
