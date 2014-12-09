@@ -9,7 +9,7 @@ E-mail  :   windprog@gmail.com
 Date    :   14-12-2
 Desc    :   
 """
-__version__ = "0.0.7"
+__version__ = "0.0.8"
 __author__ = "Windpro"
 __description__ = "High performance http engine, Support Django."
 __title__ = 'httpappengine'

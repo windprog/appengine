@@ -16,10 +16,7 @@ Desc    :   支持各种框架，目前支持django
 
 def get_django_application():
     if "django_application" not in globals():
-        import os
-        from .config import settings
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings.DJANGO_SETTINGS_MODULE)
-        #载入设置
+        # 在模块级别保存wsgi application
         from django.core.wsgi import get_wsgi_application
         #django 处理wsgi的函数
         django_application = get_wsgi_application()
@@ -29,7 +26,7 @@ def get_django_application():
     return django_application
 
 
-def monkey_patch_django(_engine):
+def __monkey_patch_django(_engine):
     from django.core import urlresolvers
     from .server import appengine_scheduler
 
@@ -61,7 +58,7 @@ def monkey_patch_django(_engine):
     views.serve = get_engine_callback(serve)
 
 
-def patch_django_Server(_server):
+def __patch_django_Server(_server):
     from .config import settings
     from ..helper import not_found, server_error
     from .util import str_startswith_str_list
@@ -81,5 +78,16 @@ def patch_django_Server(_server):
 
     _server.match_failure = match_failure
 
+
+def patch_django(_server, _engine):
+    # patch django
+    # 使django的callback 和 static file handler支持appengine调度器
+    import os
+    #载入django设置
+    from config import settings
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings.DJANGO_SETTINGS_MODULE)
+
+    __monkey_patch_django(_engine)
+    __patch_django_Server(_server)
 
 #=======================================================================================================================

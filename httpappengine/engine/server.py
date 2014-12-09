@@ -88,6 +88,5 @@ class Server(BaseServer):
         BaseServer.__init__(self)
         #支持django
         if settings.SUPPORT_DJANGO:
-            from support import monkey_patch_django, patch_django_Server
-            monkey_patch_django(self._engine)
-            patch_django_Server(self)
+            from support import patch_django
+            patch_django(self, self._engine)
