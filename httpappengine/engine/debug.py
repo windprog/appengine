@@ -106,6 +106,5 @@ class Reloader(object):
 
             # 通过 key 对称差集来判断是否有文件新增或删除，value 则用于判断是否有修改时间变化。
             if new.viewkeys() ^ self._files.viewkeys() or set(new.values()) ^ set(self._files.values()):
-                print "new file"
                 self._files = new
                 self._server.reload()
