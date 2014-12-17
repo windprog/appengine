@@ -39,6 +39,10 @@ class BaseServer(object):
         self._engine = settings.DEBUG and DebugEngine(self) or settings.Engine(self)
 
     def run(self):
+        from gevent.monkey import patch_socket, patch_ssl
+        patch_socket()
+        # 在patch socket之后，如果使用https会出错，需要连ssl也patch掉
+        patch_ssl()
         self._engine.run()
 
     def execute(self, environ, start_response):

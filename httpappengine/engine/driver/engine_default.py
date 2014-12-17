@@ -16,10 +16,6 @@ from ..interface import BaseEngine
 from ..util import app_path
 
 
-from gevent.monkey import patch_socket
-patch_socket()
-
-
 class Engine(BaseEngine, Signaler):
 
     #
