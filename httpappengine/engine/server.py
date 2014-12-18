@@ -4,7 +4,7 @@ from .config import settings
 from .router import Router
 from .debug import DebugEngine
 from .scheduler import Scheduler
-from ..helper import not_found, server_error
+from .. import helper
 
 SERVER_ERROR = -1
 
@@ -15,7 +15,11 @@ def appengine_scheduler(_engine, handler, args, kwargs):
         # 不使用 with 表达式，让pdb进入更准确的异常现场
         execute = Scheduler(_engine, handler)
         # 如果错误直接抛出异常
-        return execute.__enter__()(*args, **kwargs)
+        try:
+            return execute.__enter__()(*args, **kwargs)
+        except:
+            from .util import pdb_pm
+            pdb_pm()
     else:
         # 异常保护
         with Scheduler(_engine, handler) as execute:
@@ -23,7 +27,8 @@ def appengine_scheduler(_engine, handler, args, kwargs):
             # 返回值不能为SERVER_ERROR
             assert ret != SERVER_ERROR
             return ret
-        return SERVER_ERROR
+    # return error
+    return SERVER_ERROR
 
 
 class BaseServer(object):
@@ -73,18 +78,17 @@ class BaseServer(object):
 
         # 处理结果。
         if ret == SERVER_ERROR:
-            return server_error(start_response)
+            return helper.server_error(start_response)
         elif "response" in handler_args:
             return kwargs["response"](environ, start_response)
         elif not "start_response" in handler_args:
             return settings.Response(ret)(environ, start_response)
         elif hasattr(ret, "__iter__"):
             return ret
-
         return (ret,)
 
     def match_failure(self, environ, start_response):
-        return not_found(start_response)
+        return helper.not_found(start_response)
 
 
 class Server(BaseServer):

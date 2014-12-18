@@ -37,13 +37,16 @@ def walk_members(package, predicate, callback):
 
 def pdb_pm():
     # 使用 pdb 进入异常现场。
+    from .config import settings
     _, _, tb = exc_info()
     print_exc()
-    post_mortem(tb)
+    if settings.USE_PDB and settings.DEBUG:
+        # 进入PDB
+        post_mortem(tb)
 
 
 def prof_call(func, *args):
-    #TODO 这里需要测试兼容性
+    # TODO 这里需要测试兼容性
     # 输出函数调用性能分析。
     prof = Profile(builtins=False)
     ret = prof.runcall(func, *args)

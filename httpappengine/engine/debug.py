@@ -10,7 +10,7 @@ from threading import Thread, RLock
 from .router import Router
 from .config import settings
 from .interface import BaseEngine
-from .util import prof_call, pdb_pm, app_path, mod_path
+from .util import prof_call, app_path, mod_path
 
 
 class DebugEngine(BaseEngine):
@@ -29,7 +29,7 @@ class DebugEngine(BaseEngine):
         signal(SIGINT, lambda *args: exit(0))
 
     def run(self):
-        make_server(settings.HOST, settings.PORT, self.pre_execute).serve_forever()
+        make_server(settings.HOST, settings.PORT, self._execute).serve_forever()
 
     def reload(self):
         # 设置重新载入标记。
@@ -38,18 +38,6 @@ class DebugEngine(BaseEngine):
 
     def async_execute(self, func, *args, **kwargs):
         return func(*args, **kwargs)
-
-    def pre_execute(self, environ, start_response):
-        # 是否使用pdb进行调试
-        if settings.USE_PDB:
-            try:
-                return self._execute(environ, start_response)
-            except:
-                # 进入异常现场。
-                pdb_pm()
-        else:
-            return self._execute(environ, start_response)
-
 
     def _execute(self, environ, start_response):
         # 刷新 Router Handler 配置。

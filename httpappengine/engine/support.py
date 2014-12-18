@@ -60,7 +60,7 @@ def __monkey_patch_django(_engine):
 
 def __patch_django_Server(_server):
     from .config import settings
-    from ..helper import not_found, server_error
+    from .. import helper
     from .util import str_startswith_str_list
 
     django_application = get_django_application()
@@ -68,12 +68,12 @@ def __patch_django_Server(_server):
     def match_failure(environ, start_response):
         PATH_INFO = environ.get("PATH_INFO")
         if settings.DJANGO_URLS and not str_startswith_str_list(PATH_INFO, settings.DJANGO_URLS):
-            return not_found(start_response)
+            return helper.not_found(start_response)
         else:
             ret = django_application(environ=environ, start_response=start_response)
             # 处理结果。
             if ret is None:
-                return server_error(start_response)
+                return helper.server_error(start_response)
             return ret
 
     _server.match_failure = match_failure
