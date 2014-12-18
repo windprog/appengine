@@ -19,3 +19,15 @@ def run_server():
     Welcome()
 
     server.run()
+
+
+def exc_check():
+    # 在业务函数处理异常， 非debug模式不会触发pdb
+    from pdb import post_mortem
+    from sys import exc_info
+    from traceback import print_exc
+    from .engine.config import settings
+    _, _, tb = exc_info()
+    print_exc()
+    if settings.USE_PDB and settings.DEBUG:
+        post_mortem(tb)
