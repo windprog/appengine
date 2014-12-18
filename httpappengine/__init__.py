@@ -16,5 +16,6 @@ __title__ = 'httpappengine'
 
 from decorator import url
 from helper import rest
+from engine.util import pdb_pm
 
 __all__ = ['url', 'rest']
