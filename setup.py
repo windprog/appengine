@@ -13,6 +13,10 @@ from setuptools import setup
 
 from httpappengine import __version__, __author__, __description__
 
+try:
+    INSTALL_REQUIRES = [r for r in open('requirements.txt').read().split('\n') if len(r) > 0]
+except:
+    INSTALL_REQUIRES = []
 
 setup(
     name="httpappengine",
@@ -22,5 +26,5 @@ setup(
     author=__author__,
     author_email="windprog@gmail.com",
     packages=['httpappengine', 'httpappengine.engine', 'httpappengine.engine.driver'],
-    install_requires=['gevent>=1.0.1', 'Werkzeug>=0.9.6']
+    install_requires=INSTALL_REQUIRES
 )
