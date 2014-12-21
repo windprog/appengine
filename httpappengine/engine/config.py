@@ -111,6 +111,10 @@ class settings(object):
             # 配置不存在，载入默认配置
             print 'error, not found settings file, use default settings.'
 
+        # 预设django config
+        if settings.SUPPORT_DJANGO:
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings.DJANGO_SETTINGS_MODULE)
+
         # 各驱动实现对象。
         cls.Engine = cls.load_module_sub("driver.engine_" + cls.ENGINE).Engine
         cls.Selector = cls.load_module_sub("driver.router_" + cls.ENGINE).Selector
