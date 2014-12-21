@@ -169,10 +169,10 @@ class BaseHttpTestCase(TestCase):
         """Returns an absolute url for the given path on the test server."""
         return '%s://localhost:%s%s' % ("http", settings.PORT, path)
 
-    def call_http_request(self, url_path, method, body=None, params=None):
+    def call_http_request(self, url_path, method="GET", body=None, params=None):
         return _call_http_request(self.get_url(url_path), method, body, params)
 
-    def call_api_request(self, url_path, method, body=None, params=None):
+    def call_api_request(self, url_path, method="GET", body=None, params=None):
         r = self.call_http_request(url_path, method, body, params)
         return self.json_loads(r.text)
 
