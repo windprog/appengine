@@ -3,6 +3,7 @@
 from urllib2 import urlopen
 from time import sleep
 from httpappengine import url
+from httpappengine.helper import rest
 
 
 @url("/")
@@ -40,6 +41,16 @@ def remote(environ, start_response):
     ])
 
     return s
+
+
+@url("/rest")
+def rest_hello(environ, start_response):
+    data = {
+        'word_one': u"Hello, ",
+        'word_two': u"World!"
+    }
+
+    return rest(start_response, data)
 
 @url("/add", "GET")
 def add(environ, start_response):
