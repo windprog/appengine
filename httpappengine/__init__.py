@@ -14,8 +14,8 @@ __author__ = "Windpro"
 __description__ = "High performance http engine, Support Django."
 __title__ = 'httpappengine'
 
-from decorator import url
-from helper import rest
-from engine.util import pdb_pm
+from .decorator import url
+from .helper import rest
+from .engine.util import pdb_pm
 
 __all__ = ['url', 'rest']
