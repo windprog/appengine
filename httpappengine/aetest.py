@@ -191,7 +191,9 @@ class AppFuncTestCase(BaseHttpTestCase):
         if not self.Func:
             raise ValueError(u'请设置需要测试的业务函数self.Func')
         # 业务函数地址，遵循werkzeug的route规则
-        self.API_URI = getattr(self.Func, TAG_URLS).keys()[0]
+
+    def get_api_uri(self):
+        return getattr(self.Func, TAG_URLS).keys()[0]
 
 
 def print_test_statistics(func):
