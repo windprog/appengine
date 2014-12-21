@@ -58,18 +58,23 @@ def __monkey_patch_django(_engine):
     views.serve = get_engine_callback(serve)
 
 
-def __patch_django_Server(_server):
+def __patch_django_Server(_server, _engine):
     from .config import settings
     from .. import helper
     from .util import str_startswith_str_list
-
-    django_application = get_django_application()
+    import os
 
     def match_failure(environ, start_response):
         PATH_INFO = environ.get("PATH_INFO")
         if settings.DJANGO_URLS and not str_startswith_str_list(PATH_INFO, settings.DJANGO_URLS):
             return helper.not_found(start_response)
         else:
+            # 动态载入django设置
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings.DJANGO_SETTINGS_MODULE)
+            # 使django的callback 和 static file handler支持appengine调度器
+            __monkey_patch_django(_engine)
+            django_application = get_django_application()
+
             ret = django_application(environ=environ, start_response=start_response)
             # 处理结果。
             if ret is None:
@@ -80,14 +85,7 @@ def __patch_django_Server(_server):
 
 
 def patch_django(_server, _engine):
-    # patch django
-    # 使django的callback 和 static file handler支持appengine调度器
-    import os
-    #载入django设置
-    from config import settings
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings.DJANGO_SETTINGS_MODULE)
-
-    __monkey_patch_django(_engine)
-    __patch_django_Server(_server)
+    # 当访问到django的时候才载入django引擎，节省资源
+    __patch_django_Server(_server, _engine)
 
 #=======================================================================================================================
