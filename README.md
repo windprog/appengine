@@ -13,6 +13,7 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 * 可安装到系统环境 编写setup.py
 * 修复原项目某些情况下，debug模式无法重新载入模块bug.(0f9597d)
 * 修复原项目使用https请求会出错(5d28f3d)
+* 增加rest测试模块(3edb39d)
 
 **TODO**
 
