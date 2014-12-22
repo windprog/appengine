@@ -11,7 +11,7 @@ Desc    :
 """
 from setuptools import setup
 
-from httpappengine import __version__, __author__, __description__
+from httpappengine import __version__, __author__, __author_email__, __description__, __url__, __title__
 
 try:
     INSTALL_REQUIRES = [r for r in open('requirements.txt').read().split('\n') if len(r) > 0]
@@ -19,12 +19,12 @@ except:
     INSTALL_REQUIRES = []
 
 setup(
-    name="httpappengine",
+    name=__title__,
     version=__version__,
     description=__description__,
-    url="https://github.com/windprog/appengine",
+    url=__url__,
     author=__author__,
-    author_email="windprog@gmail.com",
+    author_email=__author_email__,
     packages=['httpappengine', 'httpappengine.engine', 'httpappengine.engine.driver'],
     install_requires=INSTALL_REQUIRES
 )
