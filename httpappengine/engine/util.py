@@ -46,11 +46,11 @@ def pdb_pm():
 
 
 def prof_call(func, *args):
-    # TODO 这里需要测试兼容性
     # 输出函数调用性能分析。
+    from .config import settings
     prof = Profile(builtins=False)
     ret = prof.runcall(func, *args)
-    Stats(prof).sort_stats("time").print_stats("/action/", 10)
+    Stats(prof).sort_stats("time").print_stats(settings.PROJECT_PATH, 10)
     return ret
 
 

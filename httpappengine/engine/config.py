@@ -69,6 +69,9 @@ class settings(object):
     ]
 
 
+    # 业务目录，可用于性能统计
+    PROJECT_PATH = ""
+
     # --- 以下内容请勿修改 --------------------------------------------------------- #
 
     # CPU Core 数量。
@@ -96,6 +99,8 @@ class settings(object):
         if settings_module:
             try:
                 mod = import_module(settings_module)
+                # 默认使用配置文件路径
+                cls.PROJECT_PATH = os.path.dirname(mod.__file__)
             except ImportError as e:
                 raise ImportError(
                     "Could not import settings '%s' (Is it on sys.path? Is there an import error in the settings file?): %s"

@@ -20,3 +20,7 @@ DJANGO_URLS = [
 ]
 
 USE_PDB = True
+
+import os
+# 项目目录，可用于性能统计
+PROJECT_PATH = os.path.dirname(__file__)
