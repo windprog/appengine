@@ -99,8 +99,13 @@ class settings(object):
         if settings_module:
             try:
                 mod = import_module(settings_module)
-                # 默认使用配置文件路径
+
+                # 项目根目录
                 cls.PROJECT_PATH = os.path.dirname(mod.__file__)
+                # 仅兼容unix
+                if settings_module.rfind('.') != -1:
+                    p_path = settings_module[:settings_module.rfind('.')].replace('.', '/')
+                    cls.PROJECT_PATH = cls.PROJECT_PATH[:cls.PROJECT_PATH.rfind(p_path) - 1]
             except ImportError as e:
                 raise ImportError(
                     "Could not import settings '%s' (Is it on sys.path? Is there an import error in the settings file?): %s"
