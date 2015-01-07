@@ -19,16 +19,15 @@ if PROJECT_PATH not in sys.path:
 # 载入用户配置
 os.environ.setdefault("APPENGINE_SETTINGS_MODULE", "config")
 
-from httpappengine.aetest import AppFuncTestCase, start_mock
+from httpappengine.aetest import BaseHttpTestCase, start_mock
+from httpappengine.util import get_action_uri
 from action.hello import rest_hello
 
 # 开始截获api
 start_mock()
 
 
-class HelloWorldTestCase(AppFuncTestCase):
-    Func = rest_hello
-
+class HelloWorldTestCase(BaseHttpTestCase):
     def test_success(self):
-        data = self.call_api_request(self.get_api_uri(), "GET")
+        data = self.call_api_request(get_action_uri(rest_hello), "GET")
         self.assertKeysIncludeDict(['word_one', 'word_two'], data)

@@ -20,7 +20,6 @@ except:
 from wsgi_intercept import requests_intercept
 from .engine.config import settings
 from .engine.support import get_django_application
-from .decorator import TAG_URLS
 try:
     import requests
 except:
@@ -181,19 +180,6 @@ class BaseHttpTestCase(TestCase):
         self.assertTrue(isinstance(dic, dict))
         for name in key_names:
             self.assertTrue(name in dic)
-
-
-class AppFuncTestCase(BaseHttpTestCase):
-    Func = None
-
-    def __init__(self, methodName='runTest'):
-        super(AppFuncTestCase, self).__init__(methodName)
-        if not self.Func:
-            raise ValueError(u'请设置需要测试的业务函数self.Func')
-        # 业务函数地址，遵循werkzeug的route规则
-
-    def get_api_uri(self):
-        return getattr(self.Func, TAG_URLS).keys()[0]
 
 
 def print_test_statistics(func):
