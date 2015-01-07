@@ -113,7 +113,7 @@ class settings(object):
                 )
             # 合并用户配置
             for k, v in vars(mod).iteritems():
-                #跳过内部对象
+                # 跳过内部对象
                 if k.startswith("__") and k.endswith("__"):
                     continue
                 setattr(settings, k, v)
