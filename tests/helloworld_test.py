@@ -23,7 +23,7 @@ from httpappengine.aetest import BaseHttpTestCase, start_mock
 from httpappengine.util import get_action_uri
 from action.hello import rest_hello
 
-# 开始截获api
+# 开始截获testcase, 将会直接经由wsgi模块调用业务函数,不经过socket发起远端request
 start_mock()
 
 
