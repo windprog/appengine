@@ -44,6 +44,12 @@ def _call_http_request(url, method, body=None, params=None):
     return r
 
 
+def init():
+    import os
+    assert "APPENGINE_SETTINGS_MODULE" in os.environ  # 必须存在环境变量
+    settings.setup()
+
+
 class MockAppengine(object):
 
     # ---- 描述符: 延迟实例化。------------------------ #
@@ -63,7 +69,9 @@ class MockAppengine(object):
     def __init__(self):
         self._host = "localhost"
         # 初始化配置
-        settings.setup()
+        init()
+        # 初始化成功
+        BaseHttpTestCase.init = True
 
     instance = InstanceDescriptor()
 
@@ -160,12 +168,17 @@ class MockAppengine(object):
 
 
 class BaseHttpTestCase(TestCase):
+    init = False
+
     def json_loads(self, s, **kwargs):
         import json
         return json.loads(s, **kwargs)
     
     def get_url(self, path):
         """Returns an absolute url for the given path on the test server."""
+        if not self.init:
+            init()  # 初始化之后调用的settings才是准确的
+            self.init = True
         return '%s://localhost:%s%s' % ("http", settings.PORT, path)
 
     def call_http_request(self, url_path, method="GET", body=None, params=None):
