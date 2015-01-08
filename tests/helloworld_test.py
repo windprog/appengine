@@ -31,3 +31,7 @@ class HelloWorldTestCase(BaseHttpTestCase):
     def test_success(self):
         data = self.call_json_request(get_action_uri(rest_hello), "GET")
         self.assertKeysIncludeDict(['word_one', 'word_two'], data)
+
+if __name__ == '__main__':
+    import unittest
+    unittest.main()
