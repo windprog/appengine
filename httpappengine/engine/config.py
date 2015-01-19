@@ -127,9 +127,9 @@ class settings(object):
 
         # 各驱动实现对象。
         cls.Engine = cls.load_module_sub("driver.engine_" + cls.ENGINE).Engine
-        cls.Selector = cls.load_module_sub("driver.router_" + cls.ENGINE).Selector
-        cls.Request = cls.load_module_sub("driver.parser_" + cls.ENGINE).Request
-        cls.Response = cls.load_module_sub("driver.parser_" + cls.ENGINE).Response
+        cls.Selector = cls.load_module_sub("driver.router_" + cls.SELECTOR).Selector
+        cls.Request = cls.load_module_sub("driver.parser_" + cls.PARSER).Request
+        cls.Response = cls.load_module_sub("driver.parser_" + cls.PARSER).Response
 
         # Action模块载入
         cls.Action_module_list = [import_module(item) for item in cls.ACTIONS]

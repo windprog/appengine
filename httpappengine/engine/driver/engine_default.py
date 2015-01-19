@@ -33,14 +33,24 @@ class Engine(BaseEngine, Signaler):
         Signaler.__init__(self)
 
     def run(self):
+        # gevent.pywsgi启动
+        from gevent.monkey import patch_socket, patch_ssl
+        patch_socket()
+        # 在patch socket之后，如果使用https会出错，需要连ssl也patch掉
+        patch_ssl()
+
         self._listen_sock = socket(family=AF_INET)
         self._listen_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self._listen_sock.bind((settings.HOST, settings.PORT))
         self._listen_sock.listen(2048)
         self._listen_sock.setblocking(0)
 
-        self.fork_workers(settings.WORKERS or settings.CPUS + 1)
-        self.parent_execute()
+        if settings.WORKERS == 1:
+            # 只有一个worker 启用单进程运行
+            self.serve_forever()
+        else:
+            self.fork_workers(settings.WORKERS or settings.CPUS + 1)
+            self.parent_execute()
 
     def fork_workers(self, num):
         for i in range(num):
@@ -51,6 +61,12 @@ class Engine(BaseEngine, Signaler):
     def worker_execute(self):
         Signaler.worker_execute(self)
 
+        self.serve_forever()
+
+        # 等待所有处理结束，超时 10 秒。
+        hasattr(self._wsgi_server, "__graceful__") and gwait(timeout=10)
+
+    def serve_forever(self):
         # 启动服务器。
         kwargs = settings.HTTPS and \
             {k: app_path("ssl/" + v) for k, v in (("keyfile", settings.HTTPS_KEY), ("certfile", settings.HTTPS_CERT))} or \
@@ -58,9 +74,6 @@ class Engine(BaseEngine, Signaler):
 
         self._wsgi_server = WSGIServer(self._listen_sock, self._server.execute, log=None, **kwargs)
         self._wsgi_server.serve_forever()
-
-        # 等待所有处理结束，超时 10 秒。
-        hasattr(self._wsgi_server, "__graceful__") and gwait(timeout=10)
 
     def worker_stop(self, graceful):
         stop = lambda *args: self._wsgi_server and self._wsgi_server.stop()

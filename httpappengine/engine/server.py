@@ -44,10 +44,6 @@ class BaseServer(object):
         self._engine = settings.DEBUG and DebugEngine(self) or settings.Engine(self)
 
     def run(self):
-        from gevent.monkey import patch_socket, patch_ssl
-        patch_socket()
-        # 在patch socket之后，如果使用https会出错，需要连ssl也patch掉
-        patch_ssl()
         self._engine.run()
 
     def execute(self, environ, start_response):
@@ -81,7 +77,7 @@ class BaseServer(object):
             return helper.server_error(start_response)
         elif "response" in handler_args:
             return kwargs["response"](environ, start_response)
-        elif not "start_response" in handler_args:
+        elif "start_response" not in handler_args:
             return settings.Response(ret)(environ, start_response)
         elif hasattr(ret, "__iter__"):
             return ret

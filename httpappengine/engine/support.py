@@ -73,14 +73,18 @@ class PatchDjango(object):
             if settings.DJANGO_URLS and not str_startswith_str_list(PATH_INFO, settings.DJANGO_URLS):
                 return helper.not_found(start_response)
             else:
-                if not self._init:
-                    # 动态载入django设置
-                    # 使django的callback 和 static file handler支持appengine调度器
-                    self.__monkey_patch_django()
-                    self._init = True
-                django_application = get_django_application()
+                try:
+                    if not self._init:
+                        # 动态载入django设置
+                        # 使django的callback 和 static file handler支持appengine调度器
+                        self.__monkey_patch_django()
+                        self._init = True
+                    django_application = get_django_application()
 
-                ret = django_application(environ=environ, start_response=start_response)
+                    ret = django_application(environ=environ, start_response=start_response)
+                except ImportError:
+                    # 载入django 框架出错
+                    ret = None
                 # 处理结果
                 if ret is None:
                     return helper.server_error(start_response)
