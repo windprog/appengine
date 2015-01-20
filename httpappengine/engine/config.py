@@ -68,9 +68,11 @@ class settings(object):
         #"plugs.qiniudn"
     ]
 
-
     # 业务目录，可用于性能统计
     PROJECT_PATH = ""
+
+    # 是否需要monkey patch socket 和 ssl
+    NEED_PATCH_SOCKET_SSL = True
 
     # --- 以下内容请勿修改 --------------------------------------------------------- #
 

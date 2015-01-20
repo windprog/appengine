@@ -19,6 +19,7 @@ def url(path, methods="GET"):
 
 
 def parse_wrapper_return(wrapper_func):
+    # TODO 会再接下来的版本删除,  孤陋寡闻,不知道有这个:@functools.wraps(func)
     # 添加 func 标记，使得框架刚开始运行的时候输出的接口列表信息正确
     # 这个修饰器不是必须使用的。
     #
