@@ -40,6 +40,11 @@ class Engine(BaseEngine, Signaler):
             # 在patch socket之后，如果使用https会出错，需要连ssl也patch掉
             patch_ssl()
 
+        if not settings.NEED_GEVENT_THREADPOOL:
+            def sync(func, *args, **kwargs):
+                return func(*args, **kwargs)
+            self.async_execute = sync
+
         self._listen_sock = socket(family=AF_INET)
         self._listen_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self._listen_sock.bind((settings.HOST, settings.PORT))

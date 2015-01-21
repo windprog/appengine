@@ -74,6 +74,9 @@ class settings(object):
     # 是否需要monkey patch socket 和 ssl
     NEED_PATCH_SOCKET_SSL = True
 
+    # 是否使用default engine的threadpool,建议使用,效率较高.实测启用之后mongodb运行失常,无法切换greenlet
+    NEED_GEVENT_THREADPOOL = True
+
     # --- 以下内容请勿修改 --------------------------------------------------------- #
 
     # CPU Core 数量。
