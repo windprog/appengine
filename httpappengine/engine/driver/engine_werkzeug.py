@@ -32,6 +32,15 @@ class Engine(BaseEngine):
         Signaler.__init__(self)
 
     def run(self):
+        try:
+            import werkzeug.serving
+
+            def none_log(*args, **kwargs):
+                # 强制不print 输出访问log
+                pass
+            setattr(werkzeug.serving.WSGIRequestHandler, "log", none_log)
+        except:
+            pass
         run_simple(settings.HOST, settings.PORT, self._server.execute, threaded=True)
 
     def async_execute(self, func, *args, **kwargs):
