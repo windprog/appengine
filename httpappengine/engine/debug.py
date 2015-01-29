@@ -29,6 +29,9 @@ class DebugEngine(BaseEngine):
         signal(SIGINT, lambda *args: exit(0))
 
     def run(self):
+        if settings.SUPPORT_WEBSOCKET:
+            print u"不支持调试运行websocket"
+            raise
         make_server(settings.HOST, settings.PORT, self._execute).serve_forever()
 
     def reload(self):

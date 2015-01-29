@@ -35,14 +35,20 @@ def walk_members(package, predicate, callback):
         map(callback, (m for _, m in members))
 
 
-def pdb_pm():
-    # 使用 pdb 进入异常现场。
-    from .config import settings
+def pdb_pm(must_pdb=None):
+    '''
+        使用 pdb 进入异常现场。
+        如果must_pdb==True 则必然进入PDB，其他使用用户配置自动进入
+    '''
     _, _, tb = exc_info()
     print_exc()
-    if settings.USE_PDB and settings.DEBUG:
-        # 进入PDB
+    if must_pdb:
         post_mortem(tb)
+    else:
+        from .config import settings
+        if settings.USE_PDB and settings.DEBUG:
+            # 进入PDB
+            post_mortem(tb)
 
 
 def prof_call(func, *args):

@@ -10,8 +10,10 @@ def url(path, methods="GET"):
     def set(cls):
         if not hasattr(cls, TAG_URLS):
             setattr(cls, TAG_URLS, {})
-
-        s = isinstance(methods, str) and methods.split(",") or methods
+        if methods is None:
+            s = None
+        else:
+            s = isinstance(methods, str) and methods.split(",") or methods
         getattr(cls, TAG_URLS)[path] = s
         return cls
 

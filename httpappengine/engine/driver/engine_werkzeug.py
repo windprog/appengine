@@ -41,6 +41,9 @@ class Engine(BaseEngine):
             setattr(werkzeug.serving.WSGIRequestHandler, "log", none_log)
         except:
             pass
+        if settings.SUPPORT_WEBSOCKET:
+            print(u"werkzeug方式不支持运行websocket")
+            raise
         run_simple(settings.HOST, settings.PORT, self._server.execute, threaded=True)
 
     def async_execute(self, func, *args, **kwargs):

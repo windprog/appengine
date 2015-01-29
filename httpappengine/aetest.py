@@ -26,22 +26,9 @@ except:
     raise ImportError(u'请安装requests')
 
 
-def _call_http_request(url, method, body=None, params=None):
-    '''
-    print _call_http_request('https://api.github.com/search/users?q=<keyword>'.replace('<keyword>', 'testabcdefg'), "GET").text
-    print _call_http_request('https://api.github.com/search/users', "GET", params={'q': 'testabcdefg'}).text
-    print _call_http_request('https://api.github.com/search/users?c=test', "GET", params={'q': 'testabcdefg'}).text
-    '''
-    if body is not None:
-        body = json.dumps(body)
-
-    param = ''
-    if params is not None:
-        param = '%s%s' % ('?' if '?' not in url else '', urllib.urlencode(params))
-
-    r = getattr(requests, method.lower())('%s%s' % (url, param), data=body)
-
-    return r
+def _call_http_request(method, url, params=None, req_data=None, req_headers=None, **kwargs):
+    return getattr(requests, method.lower())('%s' % url, params=params, data=req_data, headers=req_headers,
+                                             **kwargs)
 
 
 def init():
@@ -77,9 +64,9 @@ class MockAppengine(object):
 
     '''
         设置API的域名，如果跑在线上可以直接设置
-        例如：set_domain("api.zqkdapi.me")  服务端口8888
-        这样请求的API就变成了http://api.zqkdapi.me:8888/apixxx
-        可以完全模拟服务器的WSGI environ
+        例如：set_domain("api.xxx.com")  服务端口8888
+        这样请求的API就变成了http://api.xxx.com:8888/apixxx
+        模拟服务器的WSGI environ
     '''
     def set_domain(self, host):
         self._host = host
@@ -182,11 +169,11 @@ class BaseHttpTestCase(TestCase):
         return '%s://localhost:%s%s' % ("http", settings.PORT, path)
 
     def call_http_request(self, url_path, method="GET", body=None, params=None):
-        return _call_http_request(self.get_url(url_path), method, body, params)
+        return _call_http_request(method, self.get_url(url_path), params, body)
 
     def call_json_request(self, url_path, method="GET", body=None, params=None):
         r = self.call_http_request(url_path, method, body, params)
-        return self.json_loads(r.text)
+        return self.json_loads(r.content)
 
     def assertKeysIncludeDict(self, key_names, dic):
         self.assertTrue(isinstance(key_names, list))

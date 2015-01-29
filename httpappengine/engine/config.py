@@ -54,6 +54,9 @@ class settings(object):
     # 是否支持django
     SUPPORT_DJANGO = False
 
+    # 是否支持WebSocket
+    SUPPORT_WEBSOCKET = False
+
     # Django相关配置，在SUPPORT_DJANGO == True时生效
     # django环境变量
     DJANGO_SETTINGS_MODULE = "django_setting.settings"

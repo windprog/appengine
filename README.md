@@ -26,6 +26,14 @@ appengine 修改自雨痕的项目：[appengine](https://github.com/qyuhen/appen
 首先下载源码，可以直接点击download下载，[点击下载](https://github.com/windprog/appengine/archive/master.zip)，也可以在shell下输入:
 
 	git clone https://github.com/windprog/appengine.git
+	
+如需要支持Django请先安装[django](https://github.com/django/django)
+
+    pip install django>=1.6
+
+如需要支持WebSocket请先安装[gevent-websocket](https://github.com/jgelens/gevent-websocket)
+
+    pip install gevent-websocket
 
 进去后可以看到setup.py这个就是安装文件了，运行安装到python系统环境:
 

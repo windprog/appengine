@@ -78,6 +78,10 @@ class Engine(BaseEngine, Signaler):
             {k: app_path("ssl/" + v) for k, v in (("keyfile", settings.HTTPS_KEY), ("certfile", settings.HTTPS_CERT))} or \
             {}
 
+        if settings.SUPPORT_WEBSOCKET:
+            from geventwebsocket.handler import WebSocketHandler
+            kwargs["handler_class"] = WebSocketHandler
+
         self._wsgi_server = WSGIServer(self._listen_sock, self._server.execute, log=None, **kwargs)
         self._wsgi_server.serve_forever()
 

@@ -54,6 +54,17 @@ def rest_hello(environ, start_response):
 
     return rest(start_response, data)
 
+@url("/none", methods=None)
+def hello_all(environ, start_response):
+    s = "Hello, World!\n"
+
+    start_response("200 OK", [
+        ("Content-Type", "text/plain"),
+        ("Content-Length", str(len(s)))
+    ])
+
+    return s
+
 
 # 多进程同步例子， 使用共享内存, 类型在multiprocessing.sharedctypes.typecode_to_type
 global_select_count = multiprocessing.Value('I', 0)

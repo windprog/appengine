@@ -44,12 +44,13 @@ def Welcome():
         (
             "{0}.{1}".format(h.__module__, h.__name__),  # handler
             u,  # url
-            m,  # http methods
+            m if m is not None else "All",  # http methods
         ) for u, (h, m) in Router.instance.handlers.iteritems())
 
     pprint(handlers,
            "Handlers",
            lambda (h, u, m): h,
-           lambda v, n: print(" {0} : [{2}] {1}".format(v[0].ljust(n), v[1], http_methods_flag(*v[2]))))
+           lambda v, n: print(" {0} : [{2}] {1}".format(
+               v[0].ljust(n), v[1], http_methods_flag(*v[2]) if v[2] else "-"*6)))
 
     print()
