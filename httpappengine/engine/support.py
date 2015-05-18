@@ -40,14 +40,18 @@ class PatchDjango(object):
     def __monkey_patch_django(self):
         from django.core import urlresolvers
         from .server import appengine_scheduler
+        import functools
 
         def get_engine_callback(callback):
             #resolve会递归查找，没必要返回多次。
-            if callback.__name__ == "__engine_callback":
+            if '__is_engine_callback' in callback.__dict__:
                 return callback
 
+            @functools.wraps(callback)
             def __engine_callback(*args, **kwargs):
                 return appengine_scheduler(self._engine, callback, args, kwargs)
+
+            setattr(__engine_callback, '__is_engine_callback', True)
             return __engine_callback
 
         # 覆盖RegexURLResolver，使得执行handler的时候使用engine的调度器
@@ -62,7 +66,7 @@ class PatchDjango(object):
 
         urlresolvers.RegexURLResolver = PatchRegexURLResolver
 
-        #patch staitc file handler
+        # patch staitc file handler
         from django.contrib.staticfiles import views
         serve = views.serve
 
