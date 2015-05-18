@@ -16,10 +16,15 @@ Desc    :   支持各种框架，目前支持django
 
 def get_django_application():
     if "django_application" not in globals():
-        # 在模块级别保存wsgi application
-        from django.core.wsgi import get_wsgi_application
         #django 处理wsgi的函数
-        django_application = get_wsgi_application()
+        import django
+        if django.get_version().startswith('1.3'):
+            import django.core.handlers.wsgi
+            django_application = django.core.handlers.wsgi.WSGIHandler()
+        else:
+            # 在模块级别保存wsgi application
+            from django.core.wsgi import get_wsgi_application
+            django_application = get_wsgi_application()
         globals()['django_application'] = django_application
     else:
         django_application = globals()['django_application']

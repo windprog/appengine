@@ -9,6 +9,11 @@ E-mail  :   windprog@gmail.com
 Date    :   14-12-1
 Desc    :   django的url配置
 """
+try:
+    # 兼容django 1.3
+    from django.conf.urls.defaults import patterns, url
+except:
+    pass
 from django.conf.urls import *
 from views import *
 

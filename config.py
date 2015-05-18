@@ -21,3 +21,7 @@ DJANGO_URLS = [
 
 USE_PDB = True
 
+# ENGINE = "werkzeug"
+
+WORKERS = 1
+SUPPORT_WEBSOCKET = False

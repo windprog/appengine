@@ -160,6 +160,10 @@ class BaseHttpTestCase(TestCase):
     def json_loads(self, s, **kwargs):
         import json
         return json.loads(s, **kwargs)
+
+    def json_dumps(self, d, **kwargs):
+        import json
+        return json.dumps(d)
     
     def get_url(self, path):
         """Returns an absolute url for the given path on the test server."""
@@ -172,6 +176,8 @@ class BaseHttpTestCase(TestCase):
         return _call_http_request(method, self.get_url(url_path), params, body)
 
     def call_json_request(self, url_path, method="GET", body=None, params=None):
+        if isinstance(body, dict):
+            body = self.json_dumps(body)
         r = self.call_http_request(url_path, method, body, params)
         return self.json_loads(r.content)
 
